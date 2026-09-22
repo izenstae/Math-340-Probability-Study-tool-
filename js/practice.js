@@ -41,6 +41,7 @@ const Practice = (() => {
       if (filterUnit !== "all" && filterUnit !== u.id) continue;
       for (const g of u.generators) {
         const p = Store.getPractice(g.id);
+        const nTypes = (g.variantNames || []).length;
         const acc = p.attempts ? Math.round(100 * p.correct / p.attempts) : null;
         const recent = p.recent.slice(-5).map(r => r
           ? `<span style="color:var(--green)">●</span>`
@@ -49,7 +50,7 @@ const Practice = (() => {
           <div class="topic-row">
             <div style="flex:1; min-width:0;">
               <div class="deck-name">${g.name}</div>
-              <div class="deck-meta">${g.blurb || ""} · <span class="pill">${u.short || u.title}</span></div>
+              <div class="deck-meta">${g.blurb || ""} · <span class="pill">${u.short || u.title}</span>${nTypes ? ` <span class="pill">${nTypes} problem types</span>` : ""}</div>
             </div>
             <div class="muted" style="min-width:110px; text-align:right;">
               ${p.attempts ? `${p.correct}/${p.attempts} (${acc}%)<br><span style="font-size:11px">${recent}</span>` : "not started"}
@@ -62,7 +63,7 @@ const Practice = (() => {
     el.innerHTML = `
       <div class="card">
         <h2>Practice Problems</h2>
-        <p class="muted">Every problem is freshly generated with new numbers, so you can practice a topic until the <em>method</em> sticks. Answers accept decimals (<code>0.1389</code>), fractions (<code>5/36</code>), or percents (<code>13.9%</code>).</p>
+        <p class="muted">Each topic is a family of <em>structurally different</em> problems, not one template with the numbers shuffled — a topic cycles through all of its problem types before any of them repeats, so you practise recognising which method applies, not just executing it. Answers accept decimals (<code>0.1389</code>), fractions (<code>5/36</code>), or percents (<code>13.9%</code>).</p>
         <div class="toolbar">
           <select class="select" id="pFilter">${opts}</select>
           <button class="btn" id="pMix">▶ Mixed session (random topics)</button>
@@ -77,7 +78,9 @@ const Practice = (() => {
         if (filterUnit !== "all" && filterUnit !== u.id) continue;
         pool.push(...u.generators);
       }
-      if (pool.length) start(el, MATH340.util.pick(pool).id, true);
+      // Cycle through the topics too, so a mixed session does not serve the
+      // same topic twice in a row while others go untouched.
+      if (pool.length) start(el, MATH340.util.rotate("mixed:" + filterUnit, pool).id, true);
     });
     el.querySelectorAll("[data-gen]").forEach(b =>
       b.addEventListener("click", () => start(el, b.dataset.gen, false)));
@@ -94,7 +97,7 @@ const Practice = (() => {
   function start(el, genId, mixed) {
     const found = findGen(genId);
     if (!found) return home(el);
-    current = { ...found, problem: found.gen.make(), answered: false, mixed: !!mixed };
+    current = { ...found, problem: found.gen.make(), answered: false, mixed: !!mixed, filter: filterUnit };
     render(el);
   }
 
@@ -106,12 +109,15 @@ const Practice = (() => {
     el.innerHTML = `
       <div class="card" style="max-width: 820px; margin: 0 auto;">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-          <span class="pill pill-accent">${c.unit.short || c.unit.title}</span>
+          <span>
+            <span class="pill pill-accent">${c.unit.short || c.unit.title}</span>
+            ${p.variant ? ` <span class="pill">${p.variant}</span>` : ""}
+          </span>
           <span class="muted">${c.gen.name} · ${stats.attempts ? `${stats.correct}/${stats.attempts} correct so far` : "first attempt"}</span>
         </div>
         <div class="q-text" id="qText">${p.q}</div>
         <div class="answer-row">
-          <input type="text" id="ansInput" placeholder="${p.kind === "count" ? "Enter a whole number…" : "Enter a probability, e.g. 0.25 or 1/4…"}" autocomplete="off" ${c.answered ? "disabled" : ""}>
+          <input type="text" id="ansInput" placeholder="${p.kind === "count" ? "Enter a whole number…" : p.kind === "num" ? "Enter a number, e.g. 2.5 or 5/2…" : "Enter a probability, e.g. 0.25 or 1/4…"}" autocomplete="off" ${c.answered ? "disabled" : ""}>
           ${c.answered ? "" : `<button class="btn" id="ansCheck">Check</button>
           <button class="btn btn-ghost" id="ansGiveUp">Show solution</button>`}
         </div>
@@ -158,8 +164,12 @@ const Practice = (() => {
     const nextGenId = () => {
       if (!c.mixed) return c.gen.id;
       const pool = [];
-      for (const u of MATH340.units) pool.push(...(u.generators || []));
-      return MATH340.util.pick(pool).id;
+      for (const u of MATH340.units) {
+        if (c.filter && c.filter !== "all" && c.filter !== u.id) continue; // keep the chapter filter
+        pool.push(...(u.generators || []));
+      }
+      if (!pool.length) return c.gen.id;
+      return MATH340.util.rotate("mixed:" + (c.filter || "all"), pool).id;
     };
 
     if (!c.answered) {

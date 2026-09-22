@@ -90,7 +90,7 @@
     {
       id: "c1-ie-gen", tag: "Theorem 1.6.3",
       front: R`State the general <em>inclusion–exclusion</em> formula for \(A_1, \dots, A_n\).`,
-      back: R`$$P\Big(\bigcup_{i=1}^n A_i\Big) = \sum_i P(A_i) - \sum_{i<j} P(A_i \cap A_j) + \sum_{i<j<k} P(A_i \cap A_j \cap A_k) - \cdots + (-1)^{n+1} P(A_1 \cap \cdots \cap A_n)$$ Signs alternate: add singles, subtract pairs, add triples, …`,
+      back: R`$$P\Big(\bigcup_{i=1}^n A_i\Big) = \sum_i P(A_i) - \sum_{i&lt;j} P(A_i \cap A_j) + \sum_{i&lt;j&lt;k} P(A_i \cap A_j \cap A_k) - \cdots + (-1)^{n+1} P(A_1 \cap \cdots \cap A_n)$$ Signs alternate: add singles, subtract pairs, add triples, …`,
     },
     {
       id: "c1-exactly-one", tag: "Useful identity",

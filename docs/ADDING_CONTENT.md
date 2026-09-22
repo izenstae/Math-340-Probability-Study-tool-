@@ -71,6 +71,7 @@ That's it. Commit and push; GitHub Pages redeploys automatically.
 
 - **LaTeX in JS strings:** always build LaTeX-bearing strings with ``String.raw`...` `` (aliased to `R` in each file). A plain string literal silently eats backslashes (`"\("` becomes `"("`), which breaks rendering.
 - **Delimiters:** `\( ... \)` for inline math, `$$ ... $$` for display math.
+- **`<` in math:** card/solution strings are injected as HTML, so a `<` immediately followed by a letter (e.g. `\sum_{i<j}`) is parsed as an HTML tag and truncates the card. Write it as `&lt;` (`\sum_{i&lt;j}`); KaTeX still renders it as `<`. A `<` followed by a space or digit (e.g. `qe^t < 1`) is safe.
 - **Stable IDs:** card and generator `id`s are the keys for saved progress. Never rename them once pushed, or users lose that item's history.
 - **Answer checking:** `kind: "count"` requires the exact integer; `kind: "prob"` allows a small tolerance (default ±0.0006 or 0.4%, whichever is larger) and accepts `0.25`, `1/4`, or `25%`.
 - **Generator hygiene:** make sure every random parameter combination produces a well-posed problem and an `answer` that is a finite number. Quick smoke test in the browser console:

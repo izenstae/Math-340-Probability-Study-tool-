@@ -56,6 +56,41 @@ function checkStatedProbabilities(where, s) {
   }
 }
 
+/* A joint probability is constrained by its marginals, and stating one that
+ * is not is the same class of bug as asserting P(A u B) = 1.05: every number
+ * looks like a probability on its own, but no table could produce them all.
+ * Frechet: max(0, P(A) + P(B) - 1) <= P(A n B) <= min(P(A), P(B)). */
+function checkJointBounds(where, s) {
+  const t = s.replace(/\\[,;!]/g, "").replace(/\\ /g, " ").replace(/\s+/g, " ");
+  const num = /(-?\d*\.?\d+)/.source;
+  /* Only trust "P(...) = v" when the P starts the expression. In
+   * "P(A) + P(B) - 2P(A n B) = 0.62" the 0.62 belongs to the whole line, not
+   * to the intersection — same trap checkStatedProbabilities already dodges. */
+  const standalone = (idx) => !/[\d+\-*\/]\s*(\\,|\\cdot|\\times)?\s*$/.test(t.slice(Math.max(0, idx - 14), idx));
+
+  const marginals = new Map();
+  for (const m of t.matchAll(new RegExp(String.raw`P\(([^()|,]+?)\)\s*=\s*` + num, "g"))) {
+    if (standalone(m.index)) marginals.set(m[1].trim(), Number(m[2]));
+  }
+  const joints = [];
+  for (const m of t.matchAll(new RegExp(String.raw`P\(([^()|,]+?)\\cap([^()|,]+?)\)\s*=\s*` + num, "g"))) {
+    if (standalone(m.index)) joints.push([m[1].trim(), m[2].trim(), Number(m[3])]);
+  }
+  for (const m of t.matchAll(new RegExp(String.raw`P\(([^(),|]+?),\s*([^(),|]+?)\)\s*=\s*` + num, "g"))) {
+    if (standalone(m.index)) joints.push([m[1].trim(), m[2].trim(), Number(m[3])]);
+  }
+  for (const [a, b, joint] of joints) {
+    if (!marginals.has(a) || !marginals.has(b)) continue;   // nothing to compare against
+    const pa = marginals.get(a), pb = marginals.get(b);
+    const lo = Math.max(0, pa + pb - 1), hi = Math.min(pa, pb);
+    if (joint > hi + 1e-9) {
+      fail(`${where}: states P(${a}, ${b}) = ${joint}, which exceeds min(${pa}, ${pb}) — an intersection cannot beat its marginals`);
+    } else if (joint < lo - 1e-9) {
+      fail(`${where}: states P(${a}, ${b}) = ${joint} with P(${a}) = ${pa}, P(${b}) = ${pb} — that forces P(union) = ${(pa + pb - joint).toFixed(3)} > 1`);
+    }
+  }
+}
+
 function checkMarkup(where, s) {
   if (typeof s !== "string" || !s.trim()) return fail(`${where}: empty or non-string`);
   for (const bad of ["undefined", "NaN", "Infinity", "[object Object]"]) {
@@ -113,6 +148,8 @@ for (const unit of MATH340.units) {
       checkMarkup(`${where} (sol)`, p.sol);
       checkStatedProbabilities(`${where} (q)`, p.q);
       checkStatedProbabilities(`${where} (sol)`, p.sol);
+      checkJointBounds(`${where} (q)`, p.q);
+      checkJointBounds(`${where} (sol)`, p.sol);
     }
 
     // The whole point of the round-robin picker: a topic must not serve the same

@@ -14,7 +14,7 @@ The app is data-driven: each chapter/unit is one self-registering JavaScript fil
 That's it. Commit and push; GitHub Pages redeploys automatically.
 
 > **Tip:** the fastest workflow is to upload the week's lecture PDF to Claude and say:
-> *"Add this chapter to my study tool following docs/ADDING_CONTENT.md — extract every definition/theorem/identity into flashcards, and write 4–7 practice generators with 5–8 structurally different variants each (different methods, not the same formula with new numbers). Then run `node tools/check-generators.js`."*
+> *"Add this chapter to my study tool following docs/ADDING_CONTENT.md — extract every definition/theorem/identity into flashcards, write 4–7 practice generators with 5–8 structurally different variants each (different methods, not the same formula with new numbers), and add a methodGuide. Then run `node tools/check-generators.js && node tools/check-app.js`."*
 
 ## Unit template
 
@@ -33,6 +33,18 @@ That's it. Commit and push; GitHub Pages redeploys automatically.
     // ... one card per identity/definition/theorem from lecture
   ];
 
+  /* A decision table for the Reference page: how to tell, from the wording,
+   * which tool the question wants. This is the part that is hard under time
+   * pressure, and the part a formula sheet cannot give you. */
+  const methodGuide = [
+    {
+      when: R`"given that", "among those who…"`,
+      use: R`Definition \(P(A \mid B) = P(A \cap B)/P(B)\)`,
+      why: R`The conditioning event becomes the new sample space.`,
+    },
+    // ... 6-10 rows, covering every generator in the chapter
+  ];
+
   const generators = [
     MATH340.makeGenerator({
       id: "c3-gen-something",              // stable & unique — accuracy stats keyed on this
@@ -40,7 +52,7 @@ That's it. Commit and push; GitHub Pages redeploys automatically.
       blurb: "One-line description shown in the topic list.",
       variants: [                          // one entry per *distinct* problem shape
         {
-          name: "Direct count",                // shown as a pill above the question
+          name: "Direct count",                // the method — revealed with the solution
           make() {
             const n = U.randInt(5, 12);    // randomize parameters each call
             const ans = /* compute the exact answer */;
@@ -71,6 +83,7 @@ That's it. Commit and push; GitHub Pages redeploys automatically.
     description: "One-sentence summary shown on the dashboard.",
     flashcards,
     generators,
+    methodGuide,                           // optional — "when the question says X, reach for Y"
     // referenceTable: [...]               // optional — see data/distributions.js
   });
 })();
@@ -81,8 +94,9 @@ That's it. Commit and push; GitHub Pages redeploys automatically.
 A generator is a **family of structurally different problems**, not one template with
 the numbers shuffled. `MATH340.makeGenerator` takes a list of `variants` and hands them
 out round-robin: a topic cycles through every variant in random order before any of them
-repeats, and never repeats one back-to-back across cycles. The variant's `name` is shown
-as a pill above the question and counted as "N problem types" in the topic list.
+repeats, and never repeats one back-to-back across cycles. The variant's `name` is revealed
+*with the solution* (never before — naming the method is half the question) and counted as
+"N problem types" in the topic list, the per-shape accuracy table, and the "which method?" drill.
 
 Aim for **5–8 variants** per generator, and make them differ in the *method the student
 has to recognise*, not the scenery:
@@ -101,11 +115,23 @@ so the wording does not become a memorised cue — but it does not count as a va
 - **Delimiters:** `\( ... \)` for inline math, `$$ ... $$` for display math.
 - **`<` in math:** card/solution strings are injected as HTML, so a `<` immediately followed by a letter (e.g. `\sum_{i<j}`) is parsed as an HTML tag and truncates the card. Write it as `&lt;` (`\sum_{i&lt;j}`); KaTeX still renders it as `<`. A `<` followed by a space or digit (e.g. `qe^t < 1`) is safe.
 - **Stable IDs:** card and generator `id`s are the keys for saved progress. Never rename them once pushed, or users lose that item's history.
-- **Answer checking:** `kind: "count"` requires the exact integer; `kind: "prob"` allows a small tolerance (default ±0.0006 or 0.4%, whichever is larger) and accepts `0.25`, `1/4`, or `25%`. Use `kind: "num"` for a numeric answer that is *not* a probability (odds, an expected count) — same tolerance rules, but the input placeholder stops saying "probability" and the smoke test stops demanding a value in `[0, 1]`.
+- **Answer checking:** `kind: "count"` requires the exact integer; `kind: "prob"` allows a small tolerance (default ±0.0006 or 0.4%, whichever is larger) and accepts `0.25`, `1/4`, or `25%`. A student who simply *rounds* is also credited: if they type a plain decimal to 2+ places and it is the correct rounding of the answer to that many places (and within 5% of it), it counts. Use `kind: "num"` for a numeric answer that is *not* a probability (odds, an expected count) — same tolerance rules, but the input placeholder stops saying "probability" and the smoke test stops demanding a value in `[0, 1]`.
+
+- **Solution steps are the hint ladder.** Each `<div class="sol-step">` is revealed one at a
+  time when the student asks for a hint or misses their first attempt, so write the steps so
+  that step 1 is a *nudge toward the method* ("count the complement", "this is LOTP run
+  backwards") rather than the arithmetic. Aim for 2–4 steps; a one-step solution can only be
+  shown whole, which wastes the hint mechanism.
+
+- **Add a `methodGuide`** to the unit: a list of `{ when, use, why }` rows describing how to
+  tell from the wording which tool a question wants. It renders as a decision table at the top
+  of the Reference page, and it is the part students reread before an exam. Use `R` for LaTeX
+  here too.
 - **Generator hygiene:** every random parameter combination must produce a well-posed problem and a finite `answer`. Run the smoke test before committing (no dependencies, needs only Node):
 
   ```sh
   node tools/check-generators.js        # or: node tools/check-generators.js 2000
+  node tools/check-app.js               # grading, scheduling, migration, method guides
   ```
 
   It loads the data files listed in `index.html`, hammers every generator, and fails on a

@@ -1028,6 +1028,64 @@
     }),
   ];
 
+
+  /* ---------------- how to choose a method ----------------
+   * Knowing the formulas is the easy half. Under time pressure the
+   * marks go to whoever reads the wording and picks the right tool, so
+   * the Reference page renders this as a decision table. */
+  const methodGuide = [
+    {
+      when: R`"in order", "arrangement", "first / second / third", distinct <em>roles</em> (president, treasurer)`,
+      use: R`Permutation \(\frac{n!}{(n-k)!}\)`,
+      why: R`Swapping two chosen people gives a different outcome, so the orderings must be counted separately.`,
+    },
+    {
+      when: R`"committee", "team", "hand of cards", "select \(k\) of them" with no roles attached`,
+      use: R`Combination \(\binom{n}{k}\)`,
+      why: R`The members are interchangeable, so the \(k!\) orderings of one chosen set are the same outcome.`,
+    },
+    {
+      when: R`"may repeat", "with replacement", each slot drawn from the same pool`,
+      use: R`\(n^k\)`,
+      why: R`Every one of the \(k\) positions still has all \(n\) options, so the multiplication rule applies unchanged.`,
+    },
+    {
+      when: R`"at least one", "at least two", "none of them"`,
+      use: R`Complement \(1 - P(\text{none})\)`,
+      why: R`"At least one" splits into many disjoint cases; its complement is a single case. Almost always the shorter route.`,
+    },
+    {
+      when: R`identical objects, repeated letters, unlabelled groups, a circular table`,
+      use: R`Divide out the overcount`,
+      why: R`Count as if everything were distinct, then divide by the number of ways each genuine outcome was produced (\(2!\), \(k!\), \(2^g g!\), \(n\), …).`,
+    },
+    {
+      when: R`identical items handed out to distinct recipients, "a child may get none"`,
+      use: R`Stars and bars \(\binom{k+n-1}{n-1}\)`,
+      why: R`Only the counts matter, so encode a distribution as \(k\) stars split by \(n-1\) bars and choose the bar positions.`,
+    },
+    {
+      when: R`two or three overlapping groups, "or", "either… or…", a Venn diagram`,
+      use: R`Inclusion–exclusion`,
+      why: R`Adding the pieces double-counts the overlaps; subtract pairs, add back triples. Signs alternate.`,
+    },
+    {
+      when: R`some members must be on the committee, or must be left off`,
+      use: R`Fix them first, then choose the rest`,
+      why: R`A forced member is not a choice: reduce both \(n\) and \(k\) by one and carry on.`,
+    },
+    {
+      when: R`"equally likely", "at random", "fair", and the outcomes are finite`,
+      use: R`Naive probability \(|A|/|S|\)`,
+      why: R`Count favourable and total <em>with the same convention</em> — both ordered or both unordered — or the ratio is meaningless.`,
+    },
+    {
+      when: R`a probability is asked for but the sample space is infinite or outcomes are not equally likely`,
+      use: R`The axioms, not counting`,
+      why: R`The naive definition needs finiteness <b>and</b> equal likelihood. Without both, work from \(P(\emptyset)=0\), \(P(S)=1\) and countable additivity.`,
+    },
+  ];
+
   MATH340.registerUnit({
     id: "ch1",
     title: "Chapter 1 · Probability and Counting",
@@ -1037,5 +1095,6 @@
     description: "Sample spaces, naive probability, the multiplication rule, permutations and combinations, axioms of probability, and inclusion–exclusion.",
     flashcards,
     generators,
+    methodGuide,
   });
 })();

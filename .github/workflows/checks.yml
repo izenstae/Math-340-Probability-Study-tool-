@@ -1,4 +1,4 @@
-name: Check problem generators
+name: Checks
 
 on:
   push:
@@ -18,3 +18,5 @@ jobs:
           node-version: "20"
       - name: Smoke-test every practice generator
         run: node tools/check-generators.js 2000
+      - name: Test the study logic (grading, scheduling, migration)
+        run: node tools/check-app.js

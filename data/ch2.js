@@ -678,7 +678,7 @@
           },
         },
         {
-          name: "How many units are needed?",
+          name: "Redundant channels (at least one succeeds)",
           make() {
             const p = U.pick([0.7, 0.75, 0.8, 0.6]);
             const n = U.randInt(3, 6);
@@ -850,17 +850,18 @@
       blurb: "Multiply conditionals along a sequence of dependent draws.",
       variants: [
         {
-          name: "Three cards of one suit",
+          name: "Several cards of one suit",
           make() {
             const k = U.randInt(2, 4);
             const suit = U.pick(["hearts", "spades", "clubs", "diamonds"]);
+            const suitOne = suit.slice(0, -1); // "hearts" -> "heart"
             let ans = 1;
             for (let i = 0; i < k; i++) ans *= (13 - i) / (52 - i);
             const terms = Array.from({ length: k }, (_, i) => `\\frac{${13 - i}}{${52 - i}}`).join(" \\times ");
             return {
               q: R`${k} cards are drawn one at a time, without replacement, from a standard 52-card deck. What is the probability that <b>all ${k}</b> are ${suit}?`,
               answer: ans, kind: "prob",
-              sol: R`<div class="sol-step">Let \(A_i\) = "the \(i\)-th card is a ${suit}". The chain rule multiplies conditionals, each reflecting the cards already removed:</div>
+              sol: R`<div class="sol-step">Let \(A_i\) = "the \(i\)-th card is a ${suitOne}". The chain rule multiplies conditionals, each reflecting the cards already removed:</div>
                    <div class="sol-step">$$P(A_1 \cap \cdots \cap A_{${k}}) = P(A_1)P(A_2 \mid A_1)\cdots = ${terms} \approx ${U.fmt(ans, 5)}$$</div>
                    <div class="sol-step">Counting check: \(\binom{13}{${k}} / \binom{52}{${k}} = ${U.fmt(U.choose(13, k) / U.choose(52, k), 5)}\) — order does not change the answer.</div>`,
             };
@@ -1019,6 +1020,61 @@
     }),
   ];
 
+
+  /* ---------------- how to choose a method ---------------- */
+  const methodGuide = [
+    {
+      when: R`"given that", "if we know", "among those who…", "of the people who…"`,
+      use: R`Definition \(P(A \mid B) = \frac{P(A \cap B)}{P(B)}\)`,
+      why: R`The conditioning event becomes the new sample space; divide the overlap by it. In a two-way table this is just "row total" instead of "grand total".`,
+    },
+    {
+      when: R`you are given \(P(B)\) and \(P(A \mid B)\) and asked for the overlap`,
+      use: R`Multiplication rule \(P(A \cap B) = P(B)P(A \mid B)\)`,
+      why: R`Same identity read left to right instead of right to left. Which of the two events you condition on is whichever conditional you were handed.`,
+    },
+    {
+      when: R`draws one at a time without replacement; "then", "and then"`,
+      use: R`Chain rule`,
+      why: R`Multiply conditionals along the sequence, updating the pool after each draw. No binomial coefficient: a specific order was asked for.`,
+    },
+    {
+      when: R`the population splits into groups with <em>different rates</em>, and an overall rate is wanted`,
+      use: R`LOTP \(P(B) = \sum_i P(B \mid A_i)P(A_i)\)`,
+      why: R`You are running the rule <b>forwards</b>: weight each group's rate by how common the group is. The groups must partition the space.`,
+    },
+    {
+      when: R`the evidence is already observed and you want the cause — "given it tested positive, …"`,
+      use: R`Bayes' rule`,
+      why: R`You are running it <b>backwards</b>. The denominator is nearly always LOTP, so do that first, then divide the one joint probability you care about by it.`,
+    },
+    {
+      when: R`the prior is given as odds, or only a likelihood <em>ratio</em> is given`,
+      use: R`Odds form of Bayes`,
+      why: R`Posterior odds = likelihood ratio × prior odds — a multiplication with no denominator to compute. Convert back with \(P = \text{odds}/(1+\text{odds})\).`,
+    },
+    {
+      when: R`"independently", separate components, repeated trials of the same experiment`,
+      use: R`Multiply: \(P(A \cap B) = P(A)P(B)\)`,
+      why: R`Independence is what licenses multiplying <em>unconditional</em> probabilities. Complements of independent events are independent too.`,
+    },
+    {
+      when: R`"at least one works / fails / arrives" with independent parts`,
+      use: R`\(1 - \prod (1 - p_i)\)`,
+      why: R`Parallel systems fail only when every part fails, and independent failures multiply. Series systems are the mirror image: \(\prod p_i\).`,
+    },
+    {
+      when: R`you are asked <em>whether</em> two events are independent`,
+      use: R`Test \(P(A \cap B) \stackrel{?}{=} P(A)P(B)\)`,
+      why: R`It is an arithmetic check on three numbers, not something the story tells you. Disjoint events are the classic trap: they are dependent, not independent.`,
+    },
+    {
+      when: R`a rare condition plus an accurate test, and the answer "feels" obviously high`,
+      use: R`Check the base rate`,
+      why: R`With a rare cause, most positives are false positives. Trusting the sensitivity and ignoring \(P(A)\) is the single most common error in the chapter.`,
+    },
+  ];
+
   MATH340.registerUnit({
     id: "ch2",
     title: "Chapter 2 · Conditional Probability",
@@ -1028,5 +1084,6 @@
     description: "Conditional probability, Bayes' rule, odds, the law of total probability, independence, and conditional independence.",
     flashcards,
     generators,
+    methodGuide,
   });
 })();

@@ -459,6 +459,46 @@
             };
           },
         },
+        {
+          /* Theorem 2.4.3. Every quantity in the problem is already conditioned
+           * on E; the work is noticing that LOTP still applies unchanged, and
+           * that the weights must be P(A | E) rather than P(A). */
+          name: "LOTP with extra conditioning",
+          make() {
+            const c = U.pick([
+              {
+                pop: "students who are studying abroad this term", one: "One such student", Etag: "E",
+                groupA: "graduate students", groupB: "undergraduates", Atag: "G",
+                doing: "living in university housing", Btag: "H",
+                ask: "they live in university housing",
+              },
+              {
+                pop: "flights that departed after 6 pm", one: "One such flight", Etag: "E",
+                groupA: "international flights", groupB: "domestic flights", Atag: "I",
+                doing: "arriving late", Btag: "L",
+                ask: "it arrives late",
+              },
+              {
+                pop: "insurance claims filed online", one: "One such claim", Etag: "E",
+                groupA: "claims from long-standing customers", groupB: "claims from new customers", Atag: "C",
+                doing: "being approved within a week", Btag: "W",
+                ask: "it is approved within a week",
+              },
+            ]);
+            const w = U.randInt(25, 70) / 100;        // P(A | E)
+            const p1 = U.randInt(50, 90) / 100;       // P(B | A, E)
+            const p2 = U.randInt(10, 45) / 100;       // P(B | A^c, E)
+            const ans = p1 * w + p2 * (1 - w);
+            return {
+              q: R`Restrict attention to <b>${c.pop}</b>. Among them, a fraction ${U.fmt(w, 2)} are ${c.groupA} and the rest are ${c.groupB}. The probability of ${c.doing} is ${U.fmt(p1, 2)} among the ${c.groupA} and ${U.fmt(p2, 2)} among the ${c.groupB}. ${c.one} is chosen at random. What is the probability that ${c.ask}?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Everything here already lives inside the world where \(${c.Etag}\) has occurred. <b>Conditional probabilities are probabilities</b>, so the law of total probability applies unchanged — you just carry \(${c.Etag}\) through every single term.</div>
+                   <div class="sol-step">With \(${c.Atag}\) and \(${c.Atag}^c\) partitioning that restricted world: $$P(${c.Atag} \mid ${c.Etag}) = ${U.fmt(w, 2)}, \quad P(${c.Btag} \mid ${c.Atag}, ${c.Etag}) = ${U.fmt(p1, 2)}, \quad P(${c.Btag} \mid ${c.Atag}^c, ${c.Etag}) = ${U.fmt(p2, 2)}$$</div>
+                   <div class="sol-step">$$P(${c.Btag} \mid ${c.Etag}) = P(${c.Btag} \mid ${c.Atag}, ${c.Etag})\,P(${c.Atag} \mid ${c.Etag}) + P(${c.Btag} \mid ${c.Atag}^c, ${c.Etag})\,P(${c.Atag}^c \mid ${c.Etag})$$ $$= ${U.fmt(p1, 2)} \times ${U.fmt(w, 2)} + ${U.fmt(p2, 2)} \times ${U.fmt(1 - w, 2)} \approx ${U.fmt(ans, 5)}$$</div>
+                   <div class="sol-step">The trap is reaching for an unconditional \(P(${c.Atag})\). You were never given one, and it would be the wrong weight: inside \(${c.Etag}\) the split is \(${U.fmt(w, 2)}\).</div>`,
+            };
+          },
+        },
       ],
     }),
 
@@ -589,6 +629,45 @@
                    <div class="sol-step">$$P(W) = ${acc}\times${share} + ${U.fmt(1 - acc)}\times${U.fmt(1 - share)} = ${U.fmt(pSay, 5)}$$</div>
                    <div class="sol-step">$$P(B \mid W) = \frac{${acc}\times${share}}{${U.fmt(pSay, 5)}} \approx ${U.fmt(ans)}$$</div>
                    <div class="sol-step">Ignoring the base rate and answering "${U.fmt(acc)}" is the classic <b>base-rate fallacy</b>: blue taxis are rare, so most "blue" reports come from misidentified green taxis.</div>`,
+            };
+          },
+        },
+        {
+          /* Theorem 2.4.2. Same machinery as ordinary Bayes, but with a
+           * background event E that has to be carried through the prior, both
+           * likelihoods and the LOTP denominator. */
+          name: "Bayes with extra conditioning",
+          make() {
+            const c = U.pick([
+              {
+                pop: "support tickets that were escalated", one: "One such ticket", Etag: "E",
+                groupA: "tickets from enterprise customers", groupB: "tickets from individual users", Atag: "C",
+                isA: "from an enterprise customer",
+                doing: "being resolved the same day", done: "been resolved the same day", Btag: "R",
+              },
+              {
+                pop: "messages that got past the spam filter", one: "One such message", Etag: "E",
+                groupA: "messages from mailing lists", groupB: "messages from people", Atag: "L", isA: "from a mailing list",
+                doing: "going unread for a week", done: "gone unread for a week", Btag: "U",
+              },
+              {
+                pop: "parts that failed inspection", one: "One such part", Etag: "E",
+                groupA: "parts from the night shift", groupB: "parts from the day shift", Atag: "N", isA: "from the night shift",
+                doing: "being scrapped rather than reworked", done: "been scrapped rather than reworked", Btag: "K",
+              },
+            ]);
+            const prior = U.randInt(20, 60) / 100;    // P(A | E)
+            const p1 = U.randInt(55, 90) / 100;       // P(B | A, E)
+            const p2 = U.randInt(10, 40) / 100;       // P(B | A^c, E)
+            const pB = p1 * prior + p2 * (1 - prior); // P(B | E)
+            const ans = (p1 * prior) / pB;
+            return {
+              q: R`Restrict attention to <b>${c.pop}</b>. Among them, a fraction ${U.fmt(prior, 2)} are ${c.groupA} and the rest are ${c.groupB}. The probability of ${c.doing} is ${U.fmt(p1, 2)} among the ${c.groupA} and ${U.fmt(p2, 2)} among the ${c.groupB}. ${c.one} is chosen at random, and it turns out to have ${c.done}. What is the probability that it is ${c.isA}?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">This is Bayes' rule run inside the world where \(${c.Etag}\) has occurred, so \(${c.Etag}\) rides along in <em>every</em> term — the prior, both likelihoods, and the denominator: $$P(${c.Atag} \mid ${c.Btag}, ${c.Etag}) = \frac{P(${c.Btag} \mid ${c.Atag}, ${c.Etag})\,P(${c.Atag} \mid ${c.Etag})}{P(${c.Btag} \mid ${c.Etag})}$$</div>
+                   <div class="sol-step">Build the denominator first, with LOTP conditioned on \(${c.Etag}\): $$P(${c.Btag} \mid ${c.Etag}) = ${U.fmt(p1, 2)} \times ${U.fmt(prior, 2)} + ${U.fmt(p2, 2)} \times ${U.fmt(1 - prior, 2)} \approx ${U.fmt(pB, 5)}$$</div>
+                   <div class="sol-step">$$P(${c.Atag} \mid ${c.Btag}, ${c.Etag}) = \frac{${U.fmt(p1, 2)} \times ${U.fmt(prior, 2)}}{${U.fmt(pB, 5)}} \approx ${U.fmt(ans, 5)}$$</div>
+                   <div class="sol-step">Nothing new is happening here — fix \(${c.Etag}\), and \(P(\cdot \mid ${c.Etag})\) is a probability function like any other, obeying Bayes' rule unchanged. The only way to get this wrong is to drop \(${c.Etag}\) from one of the four terms.</div>`,
             };
           },
         },
@@ -1067,6 +1146,11 @@
       when: R`you are asked <em>whether</em> two events are independent`,
       use: R`Test \(P(A \cap B) \stackrel{?}{=} P(A)P(B)\)`,
       why: R`It is an arithmetic check on three numbers, not something the story tells you. Disjoint events are the classic trap: they are dependent, not independent.`,
+    },
+    {
+      when: R`"among those who…", "restrict attention to…" — a background condition fixed for the whole question`,
+      use: R`LOTP or Bayes <em>with extra conditioning</em>`,
+      why: R`Fix \(E\) and \(P(\cdot \mid E)\) is an ordinary probability function, so both rules apply unchanged — but \(E\) must ride along in every term, and the weights are \(P(A_i \mid E)\), not \(P(A_i)\).`,
     },
     {
       when: R`a rare condition plus an accurate test, and the answer "feels" obviously high`,

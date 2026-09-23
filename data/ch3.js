@@ -1,8 +1,10 @@
 /* ============================================================
  * Chapter 3 — Random Variables and Their Distributions  (Week 3)
- * Source: class lecture notes (C3, part 1) + Blitzstein & Hwang ch. 3
+ * Source: class lecture notes (C3) + Blitzstein & Hwang ch. 3
  * Covers: random variables, PMFs, CDFs, Bernoulli & Binomial,
- *         Hypergeometric, Binomial vs Hypergeometric.
+ *         Hypergeometric, Binomial vs Hypergeometric, Discrete Uniform,
+ *         functions of a random variable, independence of r.v.s and
+ *         indicator random variables.
  * ============================================================ */
 (function () {
   const U = MATH340.util;
@@ -138,6 +140,57 @@
       id: "c3-waiting", tag: "Example · waiting time",
       front: R`Toss a coin whose tail probability is \(p\). Let \(X\) be the number of tosses until the first tail, <em>including</em> that toss. Find the PMF of \(X\) and \(P(X > k)\).`,
       back: R`\(X = k\) means \(k - 1\) heads, then a tail: $$P(X = k) = (1 - p)^{k - 1} p, \qquad k = 1, 2, 3, \dots$$ \(X > k\) means the first \(k\) tosses are all heads: \(P(X > k) = (1 - p)^k\). This is a valid PMF (geometric series sums to 1), and \(X\) is discrete but has infinitely many values.`,
+    },
+
+    /* ---- Section 3.5: Discrete Uniform ---- */
+    {
+      id: "c3-dunif-story", tag: "Definition 3.5.1",
+      front: R`State the story and PMF of the <em>Discrete Uniform</em> distribution \(X \sim \text{DUnif}(C)\).`,
+      back: R`Let \(C\) be a <b>finite, non-empty</b> set of values. \(X \sim \text{DUnif}(C)\) means \(X\) is equally likely to be any element of \(C\): $$P(X = x) = \frac{1}{|C|}, \qquad x \in C.$$ Picking a random element of \(C\) "at random" with no further qualification means exactly this.`,
+    },
+    {
+      id: "c3-dunif-subset", tag: "DUnif · events",
+      front: R`For \(X \sim \text{DUnif}(C)\) and any subset \(A \subseteq C\), what is \(P(X \in A)\)?`,
+      back: R`$$P(X \in A) = \frac{|A|}{|C|}$$ Uniformity turns every probability question back into a <b>counting</b> question — this is the naive definition of probability from Chapter 1, now wearing a random-variable hat.`,
+    },
+    {
+      id: "c3-dunif-trap", tag: "Common pitfall",
+      front: R`Two fair dice are rolled and \(T\) is their total. Is \(T\) Discrete Uniform on \(\{2, \dots, 12\}\)?`,
+      back: R`<b>No.</b> The 36 <em>outcomes</em> are equally likely, but the 11 <em>totals</em> are not: \(P(T = 7) = 6/36\) while \(P(T = 2) = 1/36\). "Uniform" is a claim about the values of the r.v., not about the underlying outcomes. A function of a uniform r.v. is usually not uniform.`,
+    },
+
+    /* ---- Section 3.7: functions of a random variable ---- */
+    {
+      id: "c3-fn-def", tag: "Section 3.7",
+      front: R`If \(X\) is a random variable and \(g\) is a function, what is \(Y = g(X)\), and how do you get its PMF?`,
+      back: R`\(Y = g(X)\) is itself a random variable — the composition \(s \mapsto g(X(s))\). Its PMF is obtained by <b>collecting every \(x\) that \(g\) sends to \(y\)</b>: $$P(Y = y) = \sum_{x \,:\, g(x) = y} P(X = x).$$`,
+    },
+    {
+      id: "c3-fn-collapse", tag: "Functions · pitfall",
+      front: R`Why can the support of \(Y = g(X)\) be <em>smaller</em> than the support of \(X\)?`,
+      back: R`Because \(g\) need not be one-to-one: distinct values of \(X\) can map to the same \(y\), and their probabilities <b>add</b>. E.g. if \(X \in \{-2,-1,0,1,2\}\) then \(Y = X^2 \in \{0,1,4\}\), with \(P(Y = 1) = P(X = -1) + P(X = 1)\). If \(g\) <em>is</em> one-to-one the probabilities just move across unchanged.`,
+    },
+
+    /* ---- Section 3.8: independence of random variables ---- */
+    {
+      id: "c3-indep-rv", tag: "Definition 3.8.1",
+      front: R`When are two discrete random variables \(X\) and \(Y\) <em>independent</em>?`,
+      back: R`When the joint PMF factors for <b>every</b> pair of values: $$P(X = x,\ Y = y) = P(X = x)\,P(Y = y) \quad \text{for all } x, y.$$ One pair factoring is not enough — a single pair that fails is enough to make them dependent.`,
+    },
+    {
+      id: "c3-iid", tag: "Definition · i.i.d.",
+      front: R`What does <em>i.i.d.</em> mean, and which half of it does each word carry?`,
+      back: R`<b>Independent and identically distributed.</b> <em>Independent</em>: the joint PMF factors. <em>Identically distributed</em>: each has the same PMF. The two are separate claims — draws without replacement are identically distributed but <b>not</b> independent, and \(X\) with \(2X\) are dependent and not identically distributed.`,
+    },
+    {
+      id: "c3-indicator-alg", tag: "Indicator algebra",
+      front: R`For indicator r.v.s, simplify \(I_A^2\), \(I_A I_B\), and \(I_{A^c}\).`,
+      back: R`$$I_A^2 = I_A, \qquad I_A I_B = I_{A \cap B}, \qquad I_{A^c} = 1 - I_A$$ Indicators only take the values 0 and 1, so squaring changes nothing, and a product is 1 exactly when both are — i.e. on \(A \cap B\).`,
+    },
+    {
+      id: "c3-indicator-count", tag: "Counting with indicators",
+      front: R`If \(A_1, \dots, A_n\) are events, what does \(X = I_{A_1} + \cdots + I_{A_n}\) count? What is its distribution when the \(A_i\) are independent with the same probability \(p\)?`,
+      back: R`\(X\) counts <b>how many of the events occur</b>. If the \(A_i\) are independent and each has probability \(p\), then \(X \sim \text{Bin}(n, p)\) — this is exactly the "sum of \(n\) i.i.d. Bernoulli(\(p\))" story of the Binomial.`,
     },
   ];
 
@@ -934,6 +987,352 @@
         },
       ],
     }),
+
+    /* ========== 6. Discrete Uniform (Section 3.5) ========== */
+    MATH340.makeGenerator({
+      id: "c3-gen-dunif",
+      name: "Discrete Uniform distribution",
+      blurb: "Equally likely values: single values, subsets, divisibility, CDFs — and when it does NOT apply.",
+      variants: [
+        {
+          name: "Probability of one value",
+          make() {
+            const c = U.pick([
+              { lo: 1, hi: U.randInt(8, 20), what: R`a raffle ticket numbered \(1\) to \(N\) is drawn at random`, unit: "ticket number" },
+              { lo: 1, hi: U.randInt(10, 30), what: R`a locker is chosen at random from lockers numbered \(1\) to \(N\)`, unit: "locker number" },
+            ]);
+            const N = c.hi, k = U.randInt(c.lo, N);
+            const ans = 1 / N;
+            return {
+              q: R`Let \(X\) be the ${c.unit} when ${c.what.replace("\\(N\\)", "\\(" + N + "\\)")}. Find \(P(X = ${k})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">"At random" over a finite list with nothing to distinguish its members means \(X \sim \text{DUnif}(\{1, \dots, ${N}\})\): every value is equally likely.</div>
+                   <div class="sol-step">$$P(X = ${k}) = \frac{1}{|C|} = \frac{1}{${N}} \approx ${U.fmt(ans, 5)}$$</div>
+                   <div class="sol-step">The particular value ${k} is irrelevant — under a uniform distribution every value in the support has the same probability.</div>`,
+            };
+          },
+        },
+        {
+          name: "Probability of a range",
+          make() {
+            const N = U.randInt(10, 24);
+            const a = U.randInt(1, N - 4), b = U.randInt(a + 2, Math.min(N, a + 8));
+            const count = b - a + 1;
+            const ans = count / N;
+            return {
+              q: R`\(X \sim \text{DUnif}(\{1, 2, \dots, ${N}\})\). Find \(P(${a} \le X \le ${b})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">For a uniform r.v. every probability is a <b>count</b> divided by the size of the support: \(P(X \in A) = |A| / |C|\).</div>
+                   <div class="sol-step">The event \(\{${a} \le X \le ${b}\}\) contains \(${b} - ${a} + 1 = ${count}\) values (count the endpoints — that \(+1\) is the usual slip).</div>
+                   <div class="sol-step">$$P = \frac{${count}}{${N}} \approx ${U.fmt(ans, 5)}$$</div>`,
+            };
+          },
+        },
+        {
+          name: "Divisibility",
+          make() {
+            const N = U.pick([20, 24, 30, 36, 40, 48, 50, 60]);
+            const d = U.pick([2, 3, 4, 5, 6]);
+            const count = Math.floor(N / d);
+            const ans = count / N;
+            return {
+              q: R`An integer \(X\) is chosen uniformly at random from \(\{1, 2, \dots, ${N}\}\). What is the probability that \(X\) is divisible by ${d}?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Uniform, so count the favourable values: the multiples of ${d} in \(\{1, \dots, ${N}\}\) are \(${d}, 2\cdot${d}, \dots\), and there are \(\lfloor ${N}/${d} \rfloor = ${count}\) of them.</div>
+                   <div class="sol-step">$$P = \frac{${count}}{${N}} \approx ${U.fmt(ans, 5)}$$</div>`,
+            };
+          },
+        },
+        {
+          name: "Uniform on an arbitrary set",
+          make() {
+            const pool = U.shuffle([3, 5, 7, 8, 11, 12, 15, 16, 19, 20, 23, 24]).slice(0, U.randInt(5, 7)).sort((x, y) => x - y);
+            const thresh = pool[U.randInt(1, pool.length - 2)];
+            const count = pool.filter(v => v > thresh).length;
+            const ans = count / pool.length;
+            return {
+              q: R`\(X \sim \text{DUnif}(C)\) where \(C = \{${pool.join(", ")}\}\). Find \(P(X > ${thresh})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">The support need not be a run of consecutive integers — uniform just means all \(${pool.length}\) listed values are equally likely, each with probability \(1/${pool.length}\).</div>
+                   <div class="sol-step">Values exceeding \(${thresh}\): \(${pool.filter(v => v > thresh).join(", ") || "none"}\) — that is \(${count}\) of them.</div>
+                   <div class="sol-step">$$P(X > ${thresh}) = \frac{${count}}{${pool.length}} \approx ${U.fmt(ans, 5)}$$</div>`,
+            };
+          },
+        },
+        {
+          name: "CDF of a uniform",
+          make() {
+            const N = U.randInt(8, 16);
+            const k = U.randInt(2, N - 1);
+            const ans = k / N;
+            return {
+              q: R`\(X \sim \text{DUnif}(\{1, 2, \dots, ${N}\})\). Evaluate its CDF at ${k}, that is \(F(${k}) = P(X \le ${k})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(\{X \le ${k}\}\) is the set \(\{1, 2, \dots, ${k}\}\), which has \(${k}\) elements.</div>
+                   <div class="sol-step">$$F(${k}) = \frac{${k}}{${N}} \approx ${U.fmt(ans, 5)}$$ In general \(F(x) = \lfloor x \rfloor / ${N}\) for \(1 \le x \le ${N}\): a staircase of \(${N}\) equal steps.</div>`,
+            };
+          },
+        },
+        {
+          name: "Not uniform: the total of two dice",
+          make() {
+            const t = U.randInt(3, 11);
+            let count = 0;
+            for (let a = 1; a <= 6; a++) for (let b = 1; b <= 6; b++) if (a + b === t) count++;
+            const ans = count / 36;
+            return {
+              q: R`Two fair dice are rolled and \(T\) is the total. A classmate says "\(T\) takes 11 values, so \(P(T = ${t}) = 1/11\)." Compute the correct value of \(P(T = ${t})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">The 36 <b>outcomes</b> \((a, b)\) are equally likely; the 11 <b>totals</b> are not. \(T\) is a function of a uniform pair, and a function of a uniform r.v. is generally not uniform.</div>
+                   <div class="sol-step">Count the ordered pairs summing to ${t}: there are \(${count}\).</div>
+                   <div class="sol-step">$$P(T = ${t}) = \frac{${count}}{36} \approx ${U.fmt(ans, 5)} \quad \text{(not } 1/11 \approx 0.0909\text{)}$$</div>`,
+            };
+          },
+        },
+        {
+          name: "Conditioning keeps it uniform",
+          make() {
+            const N = U.randInt(10, 20);
+            const a = U.randInt(2, N - 4);
+            const remaining = N - a;
+            const k = U.randInt(a + 1, N);
+            const ans = 1 / remaining;
+            return {
+              q: R`\(X \sim \text{DUnif}(\{1, \dots, ${N}\})\). Given that \(X > ${a}\), find \(P(X = ${k} \mid X > ${a})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Use the definition: \(P(X = ${k} \mid X > ${a}) = P(X = ${k},\ X > ${a}) / P(X > ${a})\). Since \(${k} > ${a}\), the numerator is just \(P(X = ${k}) = 1/${N}\).</div>
+                   <div class="sol-step">\(\{X > ${a}\}\) contains \(${N} - ${a} = ${remaining}\) values, so \(P(X > ${a}) = ${remaining}/${N}\).</div>
+                   <div class="sol-step">$$P = \frac{1/${N}}{${remaining}/${N}} = \frac{1}{${remaining}} \approx ${U.fmt(ans, 5)}$$ Conditioning a uniform r.v. on a subset leaves it <b>uniform on that subset</b> — the \(${N}\)s cancel.</div>`,
+            };
+          },
+        },
+      ],
+    }),
+
+    /* ========== 7. Functions of a random variable (Section 3.7) ========== */
+    MATH340.makeGenerator({
+      id: "c3-gen-transform",
+      name: "Functions of a random variable",
+      blurb: "PMF of Y = g(X): shifts, squares, absolute values, capping — and when values collapse.",
+      variants: [
+        {
+          name: "Linear transform (one-to-one)",
+          make() {
+            const { xs, ps } = randomPmfTable(3, 4);
+            const a = U.pick([2, 3, -1, -2]), b = U.pick([-3, -1, 1, 4]);
+            const i = U.randInt(0, xs.length - 1);
+            const y = a * xs[i] + b;
+            const ans = ps[i] / 100;
+            const coef = a === 1 ? "" : a === -1 ? "-" : String(a);   // "-1X" is not how anyone writes it
+            const shift = b >= 0 ? `+ ${b}` : `- ${-b}`;
+            const gx = `${coef}x ${shift}`;
+            return {
+              q: R`A random variable \(X\) has the PMF below. ${pmfTable(xs, ps.map(hund))} Let \(Y = ${coef}X ${shift}\). Find \(P(Y = ${y})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(g(x) = ${gx}\) is <b>one-to-one</b>, so exactly one value of \(X\) produces each value of \(Y\) — no probabilities get added together.</div>
+                   <div class="sol-step">Solve \(${gx} = ${y}\) to get \(x = ${xs[i]}\).</div>
+                   <div class="sol-step">$$P(Y = ${y}) = P(X = ${xs[i]}) = ${hund(ps[i])}$$</div>`,
+            };
+          },
+        },
+        {
+          name: "Squaring collapses values",
+          make() {
+            const xs = [-2, -1, 0, 1, 2];
+            const ps = pmfHundredths(5);
+            const y = U.pick([1, 4]);
+            const r = Math.sqrt(y);
+            const iNeg = xs.indexOf(-r), iPos = xs.indexOf(r);
+            const ans = (ps[iNeg] + ps[iPos]) / 100;
+            return {
+              q: R`\(X\) takes values in \(\{-2, -1, 0, 1, 2\}\) with the PMF below. ${pmfTable(xs, ps.map(hund))} Let \(Y = X^2\). Find \(P(Y = ${y})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(g(x) = x^2\) is <b>not</b> one-to-one: \(${-r}\) and \(${r}\) both map to \(${y}\). Collect every \(x\) with \(g(x) = ${y}\) and <b>add</b> their probabilities.</div>
+                   <div class="sol-step">$$P(Y = ${y}) = P(X = ${-r}) + P(X = ${r}) = ${hund(ps[iNeg])} + ${hund(ps[iPos])} = ${U.fmt(ans, 5)}$$</div>
+                   <div class="sol-step">The support shrinks from 5 values to 3: \(Y \in \{0, 1, 4\}\).</div>`,
+            };
+          },
+        },
+        {
+          name: "Absolute value",
+          make() {
+            const xs = [-3, -2, -1, 0, 1, 2, 3];
+            const ps = pmfHundredths(7);
+            const y = U.randInt(1, 3);
+            const iNeg = xs.indexOf(-y), iPos = xs.indexOf(y);
+            const ans = (ps[iNeg] + ps[iPos]) / 100;
+            return {
+              q: R`\(X\) has the PMF below. ${pmfTable(xs, ps.map(hund))} Let \(Y = |X|\). Find \(P(Y = ${y})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(|X| = ${y}\) exactly when \(X = ${y}\) or \(X = ${-y}\) — two disjoint events, so the probabilities add.</div>
+                   <div class="sol-step">$$P(Y = ${y}) = ${hund(ps[iNeg])} + ${hund(ps[iPos])} = ${U.fmt(ans, 5)}$$</div>
+                   <div class="sol-step">Only \(y = 0\) would come from a single value of \(X\); every other \(y\) pools two.</div>`,
+            };
+          },
+        },
+        {
+          name: "Capping creates an atom",
+          make() {
+            const { xs, ps } = randomPmfTable(5, 6);
+            const c = U.randInt(2, xs.length - 2);
+            const idx = xs.map((x, i) => i).filter(i => xs[i] >= c);
+            const ans = sum(idx.map(i => ps[i])) / 100;
+            return {
+              q: R`\(X\) has the PMF below. ${pmfTable(xs, ps.map(hund))} Let \(Y = \min(X, ${c})\) — values above \(${c}\) are capped at \(${c}\). Find \(P(Y = ${c})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(Y = ${c}\) whenever \(X\) is \(${c}\) <em>or anything larger</em>, since everything above the cap is pushed down onto it.</div>
+                   <div class="sol-step">$$P(Y = ${c}) = P(X \ge ${c}) = ${idx.map(i => hund(ps[i])).join(" + ")} = ${U.fmt(ans, 5)}$$</div>
+                   <div class="sol-step">Capping piles the whole upper tail onto one value — that is why \(Y\) has a large "atom" at \(${c}\) even though \(X\) did not.</div>`,
+            };
+          },
+        },
+        {
+          name: "Size of the transformed support",
+          make() {
+            const lo = U.pick([-3, -4, -5]);
+            const hi = U.randInt(2, 4);
+            const xs = [];
+            for (let v = lo; v <= hi; v++) xs.push(v);
+            const ys = new Set(xs.map(v => v * v));
+            const ans = ys.size;
+            return {
+              q: R`\(X\) takes each integer value in \(\{${lo}, ${lo + 1}, \dots, ${hi}\}\) with positive probability. How many <b>distinct</b> values can \(Y = X^2\) take?`,
+              answer: ans, kind: "count",
+              sol: R`<div class="sol-step">The support of \(Y\) is the <b>image</b> \(\{x^2 : x \in \text{support}(X)\}\) — squaring, then discarding duplicates.</div>
+                   <div class="sol-step">\(X\) has \(${xs.length}\) values; their squares are \(\{${[...ys].sort((a, b) => a - b).join(", ")}\}\), which is \(${ans}\) distinct values.</div>
+                   <div class="sol-step">Values \(x\) and \(-x\) collapse together, so the support shrinks whenever the range straddles \(0\).</div>`,
+            };
+          },
+        },
+        {
+          name: "Transform of a uniform",
+          make() {
+            const N = U.randInt(6, 12);
+            const ys = new Set();
+            for (let x = 1; x <= N; x++) ys.add(x % 3);
+            const target = U.randInt(0, 2);
+            let count = 0;
+            for (let x = 1; x <= N; x++) if (x % 3 === target) count++;
+            const ans = count / N;
+            return {
+              q: R`\(X \sim \text{DUnif}(\{1, \dots, ${N}\})\) and \(Y\) is the remainder when \(X\) is divided by 3. Find \(P(Y = ${target})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(Y = g(X)\) with \(g(x) = x \bmod 3\), which is far from one-to-one — gather every \(x\) it sends to \(${target}\).</div>
+                   <div class="sol-step">In \(\{1, \dots, ${N}\}\) there are \(${count}\) such values, each of probability \(1/${N}\).</div>
+                   <div class="sol-step">$$P(Y = ${target}) = \frac{${count}}{${N}} \approx ${U.fmt(ans, 5)}$$ Note \(Y\) is <b>not</b> uniform unless 3 divides \(${N}\).</div>`,
+            };
+          },
+        },
+      ],
+    }),
+
+    /* ========== 8. Independence of random variables & indicators (Section 3.8) ========== */
+    MATH340.makeGenerator({
+      id: "c3-gen-indep-rv",
+      name: "Independence of random variables & indicators",
+      blurb: "Factor the joint PMF, i.i.d. draws, and indicator algebra.",
+      variants: [
+        {
+          name: "Joint probability under independence",
+          make() {
+            const n1 = U.randInt(3, 6), n2 = U.randInt(3, 6);
+            const x = U.randInt(1, n1), y = U.randInt(1, n2);
+            const ans = (1 / n1) * (1 / n2);
+            return {
+              q: R`A fair \(${n1}\)-sided die and a fair \(${n2}\)-sided die are rolled independently. Let \(X\) and \(Y\) be the two results. Find \(P(X = ${x},\ Y = ${y})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Independence of random variables means the joint PMF <b>factors</b> for every pair of values: \(P(X = x, Y = y) = P(X = x)P(Y = y)\).</div>
+                   <div class="sol-step">$$P(X = ${x},\ Y = ${y}) = \frac{1}{${n1}} \cdot \frac{1}{${n2}} = \frac{1}{${n1 * n2}} \approx ${U.fmt(ans, 5)}$$</div>`,
+            };
+          },
+        },
+        {
+          name: "Check independence from a joint table",
+          make() {
+            const indep = Math.random() < 0.5;
+            const px = U.randInt(3, 7) / 10;                  // P(X = 0)
+            const py = U.randInt(3, 7) / 10;                  // P(Y = 0)
+            const ans = px * py;
+            /* A joint probability is not free to be any number: it has to sit
+             * inside the Frechet bounds max(0, px + py - 1) <= joint <= min(px, py),
+             * or the table it came from could not exist (P(X=0 or Y=0) would
+             * exceed 1). With both marginals in [0.3, 0.7] that window is always
+             * at least 0.3 wide, so the two offsets below stay well clear of the
+             * product and the dependent case is never ambiguous. */
+            const lo = Math.max(0, px + py - 1), hi = Math.min(px, py);
+            const joint = indep ? ans
+              : U.round(lo + (hi - lo) * (Math.random() < 0.5 ? 0.15 : 0.85), 3);
+            return {
+              q: R`\(X\) and \(Y\) each take the values \(0\) and \(1\). You are told \(P(X = 0) = ${U.fmt(px, 2)}\), \(P(Y = 0) = ${U.fmt(py, 2)}\) and \(P(X = 0,\ Y = 0) = ${U.fmt(joint, 3)}\). Compute the value \(P(X = 0)P(Y = 0)\) that the joint probability would have to equal for \(X\) and \(Y\) to be independent.`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Independence is the statement that the joint PMF factors, so compute the right-hand side and compare it with what you were given.</div>
+                   <div class="sol-step">$$P(X = 0)P(Y = 0) = ${U.fmt(px, 2)} \times ${U.fmt(py, 2)} = ${U.fmt(ans, 5)}$$</div>
+                   <div class="sol-step">The stated joint probability is \(${U.fmt(joint, 3)}\), so \(X\) and \(Y\) are <b>${indep ? "independent at this pair" : "dependent"}</b>.${indep ? R` (To conclude full independence you would still have to check the other three pairs — one pair factoring is not enough.)` : R` A single pair that fails to factor already settles it.`}</div>`,
+            };
+          },
+        },
+        {
+          name: "i.i.d. draws: all the same",
+          make() {
+            const n = U.randInt(2, 4);
+            const N = U.randInt(4, 8);
+            const ans = Math.pow(1 / N, n - 1);
+            return {
+              q: R`\(X_1, \dots, X_${n}\) are i.i.d., each uniform on \(\{1, \dots, ${N}\}\). What is the probability that all \(${n}\) take the <b>same</b> value?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Split by the common value: \(P(\text{all equal}) = \sum_{k=1}^{${N}} P(X_1 = k, \dots, X_${n} = k)\).</div>
+                   <div class="sol-step">By independence each joint term factors into \((1/${N})^{${n}}\), and there are \(${N}\) values of \(k\):</div>
+                   <div class="sol-step">$$P = ${N} \left(\frac{1}{${N}}\right)^{${n}} = \left(\frac{1}{${N}}\right)^{${n - 1}} \approx ${U.fmt(ans, 5)}$$ Equivalently: the first draw can be anything, and each later one must match it.</div>`,
+            };
+          },
+        },
+        {
+          name: "Indicator of an intersection",
+          make() {
+            const pa = U.randInt(30, 70) / 100, pb = U.randInt(30, 70) / 100;
+            const ans = pa * pb;
+            return {
+              q: R`\(A\) and \(B\) are independent events with \(P(A) = ${U.fmt(pa, 2)}\) and \(P(B) = ${U.fmt(pb, 2)}\). Let \(I_A\) and \(I_B\) be their indicator random variables. Find \(P(I_A I_B = 1)\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Indicators take only the values 0 and 1, so the product \(I_A I_B\) equals 1 exactly when <b>both</b> are 1 — that is, \(I_A I_B = I_{A \cap B}\).</div>
+                   <div class="sol-step">$$P(I_A I_B = 1) = P(A \cap B) = P(A)P(B) = ${U.fmt(pa, 2)} \times ${U.fmt(pb, 2)} = ${U.fmt(ans, 5)}$$</div>
+                   <div class="sol-step">Worth remembering alongside \(I_A^2 = I_A\) and \(I_{A^c} = 1 - I_A\).</div>`,
+            };
+          },
+        },
+        {
+          name: "Sum of indicators is Binomial",
+          make() {
+            const n = U.randInt(4, 8);
+            const p = U.randInt(2, 8) / 10;
+            const k = U.randInt(1, n - 1);
+            const ans = binPmf(n, k, p);
+            return {
+              q: R`\(A_1, \dots, A_${n}\) are independent events, each of probability \(${U.fmt(p, 2)}\). Let \(X = I_{A_1} + \cdots + I_{A_${n}}\). Find \(P(X = ${k})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(X\) counts how many of the \(${n}\) events occur. Each indicator is \(\text{Bern}(${U.fmt(p, 2)})\) and they are independent, which is exactly the Binomial story:</div>
+                   <div class="sol-step">$$X \sim \text{Bin}(${n}, ${U.fmt(p, 2)}), \qquad P(X = ${k}) = ${binTex(n, k, p)} \approx ${U.fmt(ans, 5)}$$</div>
+                   <div class="sol-step">A sum of i.i.d. Bernoullis <em>is</em> a Binomial — that is where the \(\binom{n}{k}\) comes from: it counts which of the events occurred.</div>`,
+            };
+          },
+        },
+        {
+          name: "Dependent despite identical distributions",
+          make() {
+            const w = U.randInt(3, 6), b = U.randInt(3, 6);
+            const n = w + b;
+            const ans = (w / n) * ((w - 1) / (n - 1));
+            return {
+              q: R`An urn holds ${w} red and ${b} blue balls. Two balls are drawn <b>without replacement</b>. Let \(X_1, X_2\) indicate whether the first and second draws are red. Find \(P(X_1 = 1,\ X_2 = 1)\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">These draws are <b>identically distributed</b> — both are red with probability \(${w}/${n}\) — but they are <b>not independent</b>, so the joint probability does not factor. Use the chain rule.</div>
+                   <div class="sol-step">$$P(X_1 = 1, X_2 = 1) = \frac{${w}}{${n}} \cdot \frac{${w - 1}}{${n - 1}} \approx ${U.fmt(ans, 5)}$$</div>
+                   <div class="sol-step">The product \(P(X_1 = 1)P(X_2 = 1) = (${w}/${n})^2 = ${U.fmt((w / n) * (w / n), 5)}\) is a <em>different</em> number — which is precisely what "dependent" means. The "i.d." in i.i.d. does not give you the "i.".</div>`,
+            };
+          },
+        },
+      ],
+    }),
   ];
 
   /* ---------------- how to choose a method ---------------- */
@@ -989,6 +1388,26 @@
       why: R`With replacement the urn is unchanged before every draw, so the draws are independent with constant \(p\). That is what separates Binomial from Hypergeometric.`,
     },
     {
+      when: R`"chosen at random" from a finite list, with nothing to tell the items apart`,
+      use: R`Discrete Uniform: \(P(X = x) = 1/|C|\)`,
+      why: R`Every probability collapses to a count: \(P(X \in A) = |A|/|C|\). But check it really is the <em>values</em> that are equally likely — the total of two dice is not uniform even though the 36 rolls are.`,
+    },
+    {
+      when: R`a new r.v. is built from an old one: \(Y = g(X)\), \(X^2\), \(|X|\), \(\min(X, c)\)`,
+      use: R`\(P(Y = y) = \sum_{x : g(x) = y} P(X = x)\)`,
+      why: R`Gather every \(x\) that \(g\) sends to \(y\) and add their probabilities. If \(g\) is one-to-one nothing pools; if it is not, the support shrinks and probabilities combine.`,
+    },
+    {
+      when: R`two r.v.s and a joint probability, or "independent", or "i.i.d."`,
+      use: R`Factor: \(P(X = x, Y = y) = P(X = x)P(Y = y)\)`,
+      why: R`Independence is what licenses multiplying. To <em>disprove</em> it, one pair that fails to factor is enough; to establish it you need every pair. Draws without replacement are identically distributed but dependent.`,
+    },
+    {
+      when: R`counting how many of several events happen`,
+      use: R`A sum of indicators, \(X = \sum_i I_{A_i}\)`,
+      why: R`\(I_A I_B = I_{A \cap B}\) and \(I_A^2 = I_A\). When the \(A_i\) are independent with common probability \(p\), that sum <em>is</em> \(\text{Bin}(n, p)\).`,
+    },
+    {
       when: R`"until the first success", "keeps trying until…"`,
       use: R`\(P(X = k) = (1-p)^{k-1}p\); \(P(X > k) = (1-p)^k\)`,
       why: R`\(X > k\) just means the first \(k\) tries all fail, so there is no infinite sum.`,
@@ -1001,7 +1420,7 @@
     short: "Ch 3 · RVs",
     week: 3,
     order: 3,
-    description: "Random variables, PMFs and CDFs, the Bernoulli and Binomial distributions, the Hypergeometric distribution, and when to use each.",
+    description: "Random variables, PMFs and CDFs; the Bernoulli, Binomial, Hypergeometric and Discrete Uniform distributions; functions of a random variable; independence and indicator r.v.s.",
     flashcards,
     generators,
     methodGuide,

@@ -12,7 +12,9 @@ An interactive study tool for **MATH 340: Probability** (Fall 2026, Lawrence Uni
 Every definition, theorem, and identity from lecture is a card (Definition 2.2.1, Bayes' rule, inclusion–exclusion, Table C distributions, …). A Leitner system schedules reviews: cards you know move up a box and appear less often; cards you miss come back the next day. Cards in box 4+ count as *mastered*. Keyboard-friendly (Space to flip, 1/2 to grade).
 
 **✏️ Generated practice problems**
-Each topic has a problem *generator*, not a fixed problem bank — permutations, committees, inclusion–exclusion, two-way tables, the law of total probability, Bayes' rule, independence and reliability, odds, and more. Every attempt uses new numbers, so you practice the **method** until it is automatic. Answers accept decimals, fractions (`5/36`), or percents, and every problem ends with a fully worked, LaTeX-rendered solution.
+Each topic is a *family of problems*, not a fixed bank and not one template with the numbers shuffled. The 17 topics — permutations and arrangements, committees, sampling, naive probability, inclusion–exclusion, the complement trick, random splits, the probability axioms, two-way tables, the law of total probability, Bayes' rule, the chain rule, independence and reliability, odds — hold **over 100 structurally different problem types** between them, and a topic cycles through all of its types before any one repeats.
+
+That means a single topic will ask you to count directly, then via the complement, then adjust for overcounting, then reach for stars-and-bars; or run a rule forwards (law of total probability) and then backwards (Bayes), then solve it for a different unknown. Several variants exist purely to punish autopilot — disjoint events that are *not* independent, an event nested inside another, a two-headed coin. You practise **recognising which method applies**, not just executing one. Answers accept decimals, fractions (`5/36`), or percents, and every problem ends with a fully worked, LaTeX-rendered solution.
 
 **📊 Progress tracking**
 Per-chapter mastery bars, per-topic accuracy (overall and last 10 attempts), a daily activity heatmap, and a study streak. Progress is stored in your browser and can be exported/imported as JSON to move between devices.
@@ -74,6 +76,8 @@ Each unit is a single self-registering file in `data/` — adding a new week req
 │   ├── ch2.js            # Chapter 2 — flashcards + problem generators
 │   └── distributions.js  # Table C reference + distribution flashcards
 ├── lib/katex/            # Vendored KaTeX (offline math rendering)
+├── tools/
+│   └── check-generators.js  # Smoke test: every problem variant is well posed (node, no deps)
 └── docs/ADDING_CONTENT.md
 ```
 

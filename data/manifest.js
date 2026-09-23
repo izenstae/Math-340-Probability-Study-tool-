@@ -80,6 +80,8 @@ window.MATH340 = {
       }
       return a;
     },
+    // k distinct elements of arr, in random order.
+    sample(arr, k) { return this.shuffle(arr).slice(0, k); },
     factorial(n) { let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; },
     perm(n, k) { let r = 1; for (let i = 0; i < k; i++) r *= (n - i); return r; },
     choose(n, k) {
@@ -89,10 +91,78 @@ window.MATH340 = {
       for (let i = 0; i < k; i++) r = r * (n - i) / (i + 1);
       return Math.round(r);
     },
+    gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { [a, b] = [b, a % b]; } return a; },
+    lcm(a, b) { return a * b / this.gcd(a, b); },
     round(x, d) { const p = Math.pow(10, d); return Math.round(x * p) / p; },
     fmt(x, d = 4) {
       if (Number.isInteger(x)) return String(x);
       return String(Math.round(x * Math.pow(10, d)) / Math.pow(10, d));
     },
+    // "5" / "5s" — tiny helper so generated sentences stay grammatical.
+    plural(n, one, many) { return n === 1 ? one : (many != null ? many : one + "s"); },
+    // Reduced fraction as LaTeX, e.g. fracTex(6, 8) -> "\frac{3}{4}".
+    fracTex(n, d) {
+      const g = this.gcd(n, d) || 1;
+      const num = n / g, den = d / g;
+      return den === 1 ? String(num) : `\\frac{${num}}{${den}}`;
+    },
+
+    /* Four mutually consistent regions for a pair of events, as whole
+     * percentages that sum to 100. Generators that need P(A), P(B) and
+     * P(A∩B) should take them from here rather than drawing three numbers
+     * independently — that is how you end up stating P(A ∪ B) = 1.05. */
+    venn2({ bothMin = 8, bothMax = 25, onlyMin = 15, onlyMax = 35 } = {}) {
+      const both = this.randInt(bothMin, bothMax);
+      const onlyA = this.randInt(onlyMin, onlyMax);
+      const onlyB = this.randInt(onlyMin, onlyMax);
+      const neither = 100 - both - onlyA - onlyB; // >= 0 for the default ranges
+      return {
+        both: both / 100, onlyA: onlyA / 100, onlyB: onlyB / 100, neither: neither / 100,
+        pa: (both + onlyA) / 100, pb: (both + onlyB) / 100,
+        union: (both + onlyA + onlyB) / 100,
+        exactlyOne: (onlyA + onlyB) / 100,
+        pct: { both, onlyA, onlyB, neither, a: both + onlyA, b: both + onlyB },
+      };
+    },
+
+    /* Round-robin variant picker.
+     * Returns entries of `list` one at a time, cycling through the whole list
+     * in random order before any entry repeats (and never repeating an entry
+     * back-to-back across cycles). This is what keeps a practice topic from
+     * serving the same problem shape twice in a row. */
+    _queues: {},
+    _last: {},
+    rotate(key, list) {
+      if (!list || !list.length) return null;
+      if (list.length === 1) return list[0];
+      let q = this._queues[key];
+      if (!q || !q.length) {
+        q = this.shuffle(list.map((_, i) => i));
+        if (q[0] === this._last[key]) [q[0], q[1]] = [q[1], q[0]];
+        this._queues[key] = q;
+      }
+      const i = q.shift();
+      this._last[key] = i;
+      return list[i];
+    },
+  },
+
+  /* Build a practice generator from a list of *structurally different*
+   * problem variants. Each variant is { name, make() } and returns the usual
+   * { q, answer, kind, sol, tol? } object; the variant's name is attached to
+   * the problem so the UI can show which flavour is on screen.
+   *   kind: "count" — exact non-negative integer answer
+   *         "prob"  — a probability in [0, 1]
+   *         "num"   — any other number (odds, expected counts, ...)
+   */
+  makeGenerator({ id, name, blurb, variants }) {
+    return {
+      id, name, blurb,
+      variantNames: variants.map(v => v.name),
+      make() {
+        const v = MATH340.util.rotate(id, variants);
+        return { variant: v.name, ...v.make() };
+      },
+    };
   },
 };

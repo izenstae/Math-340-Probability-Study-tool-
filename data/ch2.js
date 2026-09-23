@@ -544,7 +544,10 @@
           name: "Odds form of Bayes",
           make() {
             const priorNum = U.randInt(1, 4), priorDen = U.randInt(1, 5);
-            const lrNum = U.randInt(2, 9), lrDen = U.randInt(1, 3);
+            const lrNum = U.randInt(2, 9);
+            // A likelihood ratio of exactly 1 is vacuous evidence (and reads as
+            // "1 times as likely"), so keep the denominator away from the numerator.
+            const lrDen = (d => (d === lrNum ? 1 : d))(U.randInt(1, 3));
             const postOdds = (priorNum / priorDen) * (lrNum / lrDen);
             const ans = postOdds / (1 + postOdds);
             return {

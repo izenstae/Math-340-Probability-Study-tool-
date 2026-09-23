@@ -87,9 +87,13 @@ window.MATH340 = {
     choose(n, k) {
       if (k < 0 || k > n) return 0;
       k = Math.min(k, n - k);
-      let r = 1;
-      for (let i = 0; i < k; i++) r = r * (n - i) / (i + 1);
-      return Math.round(r);
+      // Exact integer arithmetic: in floating point the partial products overflow
+      // 2^53 for n in the fifties and the result comes back off by one, which for a
+      // counting answer is simply the wrong number.
+      let r = 1n;
+      const N = BigInt(n);
+      for (let i = 0n; i < BigInt(k); i++) r = (r * (N - i)) / (i + 1n);
+      return Number(r);
     },
     gcd(a, b) { a = Math.abs(a); b = Math.abs(b); while (b) { [a, b] = [b, a % b]; } return a; },
     lcm(a, b) { return a * b / this.gcd(a, b); },

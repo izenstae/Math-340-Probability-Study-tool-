@@ -9,6 +9,10 @@ const Practice = (() => {
   function parseAnswer(text) {
     text = (text || "").trim().replace(/\s+/g, "");
     if (!text) return NaN;
+    // thousands separators, e.g. "17,576,000" — counting answers get large enough
+    // that writing them out this way is natural. The pattern is deliberately strict
+    // so a decimal comma ("1,5") is still rejected rather than read as 15.
+    if (/^-?\d{1,3}(,\d{3})+$/.test(text)) text = text.replace(/,/g, "");
     // percentage, e.g. "25%"
     if (/^-?\d*\.?\d+%$/.test(text)) return parseFloat(text) / 100;
     // fraction, e.g. "5/36" or "0.5/2"

@@ -11,16 +11,20 @@ The app is data-driven: each chapter/unit is one self-registering JavaScript fil
    <script src="data/chN.js"></script>
    ```
 
-That's it. Commit and push; GitHub Pages redeploys automatically.
+That's it. Commit and push; once the change reaches `main`, the `Deploy to GitHub Pages` workflow republishes the site.
+
+A chapter's material doesn't have to land all at once. When the second half of a lecture deck arrives, extend the existing `data/chN.js` (new cards, new generators, new `methodGuide` rows) rather than creating a second unit. Chapter 3 grew this way.
 
 > **Tip:** the fastest workflow is to upload the week's lecture PDF to Claude and say:
 > *"Add this chapter to my study tool following docs/ADDING_CONTENT.md — extract every definition/theorem/identity into flashcards, write 4–7 practice generators with 5–8 structurally different variants each (different methods, not the same formula with new numbers), and add a methodGuide. Then run `node tools/check-generators.js && node tools/check-app.js`."*
+>
+> For a homework PDF, say: *"Add the problem shapes from this assignment following the homework section of docs/ADDING_CONTENT.md."*
 
 ## Unit template
 
 ```js
 (function () {
-  const U = MATH340.util;      // randInt, pick, shuffle, factorial, perm, choose, fmt
+  const U = MATH340.util;      // see "Shared utilities" below
   const R = String.raw;        // IMPORTANT: use R`...` for any string containing LaTeX
 
   const flashcards = [
@@ -89,6 +93,32 @@ That's it. Commit and push; GitHub Pages redeploys automatically.
 })();
 ```
 
+## Adding a homework assignment
+
+Homework doesn't get its own unit: it goes into the chapter it exercises, since that is what the Wednesday quiz draws on. For each assignment:
+
+1. **Read every problem and name its *shape***, meaning the method it forces rather than its story. Assignment 2, for example, reduces to: conditioning on "the first is red" vs. "at least one is red" vs. "R₁ was drawn"; the overall success rate of a diagnostic test and how good a test must be to beat "call everyone healthy"; a two-way defect table with a complement condition; a hereditary mixture whose children are conditionally independent but not independent; and updating a posterior on evidence that arrives in stages.
+2. **Check which shapes already exist** (`grep -n 'name: "' data/chN.js`). Skip any shape that is already covered. A new shape goes in as a variant of the closest existing generator. If several new shapes share one idea, give them a generator (topic) of their own.
+3. **Add a flashcard for each idea a shape teaches**, and a `methodGuide` row for each new wording cue.
+4. **Don't copy the homework's numbers into a fixed problem.** Randomise the parameters and the scenery so the student practises the method, not the answer.
+5. Run both checks, and update the counts in `README.md` (topics, problem types, the unit table).
+
+## Shared utilities
+
+`MATH340.util` (defined in `data/manifest.js`) is available as `U` in every unit:
+
+| Helper | What it does |
+| --- | --- |
+| `randInt(a, b)`, `pick(arr)`, `shuffle(arr)`, `sample(arr, k)` | Random integers and random picks |
+| `factorial(n)`, `perm(n, k)`, `choose(n, k)` | Counting. `choose` uses exact BigInt arithmetic |
+| `gcd`, `lcm`, `round(x, d)`, `fmt(x, d = 4)` | Arithmetic and display rounding |
+| `fracTex(n, d)` | A reduced fraction as LaTeX, e.g. `\frac{3}{4}` |
+| `plural(n, one, many)` | Grammatical plurals in generated text |
+| `venn2(opts)` | Four consistent Venn regions (in hundredths) for two events. Use this instead of drawing P(A), P(B) and P(A∩B) independently |
+| `rotate(key, list)` | The round-robin picker behind `makeGenerator` |
+
+Some chapter files also define local helpers, such as `sane(make, lo, hi)` in `ch3.js`, which redraws parameters until the answer is a probability worth computing. Reuse them within a file before writing new ones.
+
 ## Writing generators that actually vary
 
 A generator is a **family of structurally different problems**, not one template with
@@ -135,9 +165,13 @@ so the wording does not become a memorised cue — but it does not count as a va
   ```
 
   It loads the data files listed in `index.html`, hammers every generator, and fails on a
-  non-finite answer, a `count` that is not a whole number, a `prob` outside `[0, 1]`, an
+  non-finite answer, a probability *stated in the question text* outside `[0, 1]` or a joint probability its marginals
+  cannot produce, a `count` that is not a whole number, a `prob` outside `[0, 1]`, an
   `undefined`/`NaN` that leaked into the question text, unbalanced `$$` or `\( \)`, a stray
   `<` that the browser would eat as a tag, a duplicate id, or a declared variant that never
-  actually appears. It also prints the variant count per generator. CI runs it on every push.
+  actually appears. It also prints the variant count per generator. CI runs both scripts on every push and pull request.
 
-- **Schedule updates:** dates and topics live in `data/manifest.js` (`schedule`, `keyDates`). Adjust there if the instructor shifts the calendar.
+  It does not run KaTeX. A malformed formula (an unknown command, a missing brace) passes the smoke test but renders as red error text in the browser, so open a few problems of each new variant in the site before pushing.
+
+- **Schedule updates:** dates and topics live in `data/manifest.js` (`schedule`, `keyDates`, `gradeWeights`). Adjust there if the instructor shifts the calendar or posts a new due date. `keyDates` entries of `kind: "exam"` also drive the dashboard's exam countdown and rehearsal prompts.
+- **Keep the README in step:** it quotes the topic and problem-type counts and has a per-unit table. `node tools/check-generators.js` prints the numbers. After a unit changes noticeably, refresh the screenshots with `node tools/screenshots.js` (needs Playwright with Chromium).

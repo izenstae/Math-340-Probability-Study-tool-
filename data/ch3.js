@@ -1,6 +1,7 @@
 /* ============================================================
  * Chapter 3 — Random Variables and Their Distributions  (Week 3)
- * Source: class lecture notes (C3) + Blitzstein & Hwang ch. 3
+ * Source: class lecture notes (C3, both halves) + Blitzstein & Hwang
+ *         ch. 3 and §4.3, §4.7
  * Covers: random variables, PMFs, CDFs, Bernoulli & Binomial,
  *         Hypergeometric, Binomial vs Hypergeometric, Discrete Uniform,
  *         functions of a random variable, independence of r.v.s and

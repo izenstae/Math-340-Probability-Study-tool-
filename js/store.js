@@ -9,6 +9,7 @@
  *                          variants: { [name]: { a, c } } } },
  *   misses:   [ { key, genId, unitId, variant, q, sol, answer, kind, at } ],
  *   exams:    [ { at, label, scope, n, correct, seconds, limit, items } ],
+ *   sheet:    [ cardId, ... ],           // formula-sheet selection (Reference page)
  *   activity: { [YYYY-MM-DD]: count },   // reviews + problems per day
  * }
  *

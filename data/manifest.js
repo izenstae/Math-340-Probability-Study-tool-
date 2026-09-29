@@ -35,7 +35,8 @@ window.MATH340 = {
   ],
 
   keyDates: [
-    { date: "2026-09-25", label: "Homework 1 & 2 due (5:00 pm)",            kind: "hw"   },
+    { date: "2026-09-25", label: "Homework 1 due (5:00 pm)",                kind: "hw"   },
+    { date: "2026-10-02", label: "Homework 2 due",                          kind: "hw"   },
     { date: "2026-10-21", label: "Midterm Exam · 1:50–3:00 pm",             kind: "exam" },
     { date: "2026-11-13", label: "Last day to request final-exam change",   kind: "info" },
     { date: "2026-11-23", label: "Final Exam · 11:30 am–2:00 pm (cumulative)", kind: "exam" },

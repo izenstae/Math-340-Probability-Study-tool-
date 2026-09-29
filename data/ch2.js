@@ -87,6 +87,33 @@
       front: R`Define <em>conditional independence</em> of \(A\) and \(B\) given \(E\). Does it imply (or follow from) ordinary independence?`,
       back: R`$$P(A \cap B \mid E) = P(A \mid E)\,P(B \mid E)$$ <b>Neither implies the other.</b> Independence ⇏ conditional independence given \(E\); conditional independence given \(E\) ⇏ independence, and ⇏ conditional independence given \(E^c\).`,
     },
+
+    /* ---- Assignment 2 ideas ---- */
+    {
+      id: "c2-info-cond", tag: "Conditioning on information",
+      front: R`A jar holds red marbles \(R_1, R_2\) and blue marbles \(B_1, B_2\); two are drawn without replacement. Find \(P(\text{both red})\) given (a) the first is red, (b) at least one is red, (c) one of them is \(R_1\).`,
+      back: R`(a) \(\frac{1}{3}\): after a red first draw, 1 of the 3 remaining is red.<br>(b) \(\frac{1}{5}\): of the \(\binom{4}{2} = 6\) equally likely pairs, 5 contain a red and only 1 is both red.<br>(c) \(\frac{1}{3}\): given \(R_1\) is in the pair, the other marble is equally likely to be any of the 3 others.<br>"At least one" is weaker information than a <em>specific</em> red, so it leaves more pairs in play and a smaller answer. Condition on exactly what you were told.`,
+    },
+    {
+      id: "c2-sens-spec", tag: "Diagnostic tests",
+      front: R`Define the <em>sensitivity</em>, <em>specificity</em>, and <em>overall success rate</em> of a diagnostic test for a disease \(D\) with prevalence \(P(D)\).`,
+      back: R`Sensitivity \(= P(+ \mid D)\) (catches the sick); specificity \(= P(- \mid D^c)\) (clears the healthy). The overall success rate is the probability of a correct diagnosis, by LOTP: $$P(\text{correct}) = \text{sens}\cdot P(D) + \text{spec}\cdot P(D^c).$$ The false-positive rate is \(1 - \text{spec}\).`,
+    },
+    {
+      id: "c2-trivial-test", tag: "Common pitfall",
+      front: R`A disease affects 1% of people. A "test" that declares <em>everyone</em> healthy has what overall success rate, and why is that misleading?`,
+      back: R`\(P(\text{correct}) = P(D^c) = 0.99\) — higher than a test with sensitivity and specificity both \(0.95\) (success rate \(0.95\)). But its sensitivity is \(0\): it never finds a single sick person. For a rare condition, accuracy is dominated by the healthy majority, so judge a test by sensitivity, specificity and \(P(D \mid +)\), not accuracy alone.`,
+    },
+    {
+      id: "c2-cond-indep-family", tag: "Conditional independence · example",
+      front: R`A mother carries a hereditary disease with probability \(1/3\); if she does, each child independently has it with probability \(1/2\), otherwise no child does. Are the two children's statuses independent?`,
+      back: R`They are <b>conditionally independent given the mother's status</b>, but <b>not independent</b>. \(P(\text{elder}) = \tfrac{1}{3}\cdot\tfrac{1}{2} = \tfrac{1}{6}\), while \(P(\text{both}) = \tfrac{1}{3}\cdot\tfrac{1}{4} = \tfrac{1}{12} \ne \tfrac{1}{36}\). A sick elder child is evidence the mother carries it, which raises the younger's chance to \(\tfrac{1}{2}\).`,
+    },
+    {
+      id: "c2-sequential-bayes", tag: "Sequential updating",
+      front: R`Evidence arrives in two pieces (e.g. two children test negative a week apart). Does it matter whether you update on both at once or one at a time?`,
+      back: R`<b>No.</b> Today's posterior is tomorrow's prior: updating on \(E_1\), then on \(E_2\) using \(P(\cdot \mid E_1)\), gives exactly \(P(A \mid E_1 \cap E_2)\). When the pieces are conditionally independent given each hypothesis, the likelihoods simply multiply: \(P(E_1 \cap E_2 \mid A) = P(E_1 \mid A)P(E_2 \mid A)\).`,
+    },
   ];
 
   /* ---------------- practice problem generators ----------------
@@ -343,6 +370,20 @@
           },
         },
         {
+          name: "Given A didn't happen, neither happens",
+          make() {
+            const v = U.venn2({ bothMin: 1, bothMax: 6, onlyMin: 3, onlyMax: 10 });
+            const ans = v.neither / (1 - v.pa);
+            return {
+              q: R`In a shipment of laptops, ${v.pct.a}% have a faulty keyboard (\(K\)), ${v.pct.b}% have a faulty screen (\(S\)), and ${v.pct.both}% have both. Given that a laptop's keyboard is <b>not</b> faulty, what is the probability that its screen is also not faulty?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">We want \(P(S^c \mid K^c) = \frac{P(S^c \cap K^c)}{P(K^c)}\). The numerator is "neither" — the complement of the union.</div>
+                   <div class="sol-step">$$P(K \cup S) = ${U.fmt(v.pa)} + ${U.fmt(v.pb)} - ${U.fmt(v.both)} = ${U.fmt(v.union)}, \qquad P(K^c \cap S^c) = 1 - ${U.fmt(v.union)} = ${U.fmt(v.neither)}$$</div>
+                   <div class="sol-step">$$P(S^c \mid K^c) = \frac{${U.fmt(v.neither)}}{1 - ${U.fmt(v.pa)}} \approx ${U.fmt(ans)}$$ Not \(1 - P(S \mid K)\): the complement rule works inside one condition, not by swapping the condition too.</div>`,
+            };
+          },
+        },
+        {
           name: "Conditioning on the union",
           make() {
             const v = U.venn2();
@@ -456,6 +497,21 @@
                    <div class="sol-step">$$P(\text{both red} \mid \text{I}) = \left(\frac{${r1}}{${r1 + b1}}\right)^2 = ${U.fmt(q1 * q1, 5)}, \qquad P(\text{both red} \mid \text{II}) = \left(\frac{${r2}}{${r2 + b2}}\right)^2 = ${U.fmt(q2 * q2, 5)}$$</div>
                    <div class="sol-step">$$P(\text{both red}) = \tfrac{1}{2}(${U.fmt(q1 * q1, 5)}) + \tfrac{1}{2}(${U.fmt(q2 * q2, 5)}) \approx ${U.fmt(ans, 5)}$$</div>
                    <div class="sol-step">Unconditionally the draws are <b>not</b> independent: the first red ball is evidence about which urn you are holding. Conditional independence does not imply independence.</div>`,
+            };
+          },
+        },
+        {
+          name: "Hereditary mixture: no child affected",
+          make() {
+            const [mn, md] = U.pick([[1, 3], [1, 4], [1, 5], [2, 5], [1, 2]]);
+            const m = mn / md, h = U.pick([0.5, 0.25, 0.4]), k = U.randInt(2, 3);
+            const ans = m * Math.pow(1 - h, k) + (1 - m);
+            return {
+              q: R`A hereditary disease passes from a mother to each child independently with probability ${h} if she has it; if she does not, her children do not get it. A mother has the disease with probability \(${mn}/${md}\) and has ${k} children. What is the probability that <b>none</b> of the children has the disease?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">The children are independent only <em>given</em> the mother's status, so condition on it first (LOTP with \(M\) = mother has the disease).</div>
+                   <div class="sol-step">\(P(\text{none} \mid M) = (1 - ${h})^{${k}} = ${U.fmt(Math.pow(1 - h, k))}\) and \(P(\text{none} \mid M^c) = 1\).</div>
+                   <div class="sol-step">$$P(\text{none}) = ${U.fmt(Math.pow(1 - h, k))}\cdot\frac{${mn}}{${md}} + 1\cdot\frac{${md - mn}}{${md}} \approx ${U.fmt(ans)}$$ Multiplying unconditional probabilities \(P(\text{child healthy})^{${k}}\) would be wrong — the children are not independent.</div>`,
             };
           },
         },
@@ -629,6 +685,22 @@
                    <div class="sol-step">$$P(W) = ${acc}\times${share} + ${U.fmt(1 - acc)}\times${U.fmt(1 - share)} = ${U.fmt(pSay, 5)}$$</div>
                    <div class="sol-step">$$P(B \mid W) = \frac{${acc}\times${share}}{${U.fmt(pSay, 5)}} \approx ${U.fmt(ans)}$$</div>
                    <div class="sol-step">Ignoring the base rate and answering "${U.fmt(acc)}" is the classic <b>base-rate fallacy</b>: blue taxis are rare, so most "blue" reports come from misidentified green taxis.</div>`,
+            };
+          },
+        },
+        {
+          name: "Updating on repeated observations",
+          make() {
+            const [mn, md] = U.pick([[1, 3], [1, 4], [1, 2], [2, 5]]);
+            const m = mn / md, h = U.pick([0.5, 0.25, 0.4]), k = U.randInt(2, 3);
+            const like = Math.pow(1 - h, k);
+            const ans = m * like / (m * like + (1 - m));
+            return {
+              q: R`A hereditary disease passes from a mother to each child independently with probability ${h} if she has it; otherwise her children cannot get it. A mother has the disease with prior probability \(${mn}/${md}\). One by one, her ${k} children are all found <b>not</b> to have the disease. Given this, what is the probability the mother has it?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Let \(M\) = mother has the disease, \(N\) = all ${k} children healthy. Given \(M\) the children are independent: \(P(N \mid M) = (1 - ${h})^{${k}} = ${U.fmt(like)}\); \(P(N \mid M^c) = 1\).</div>
+                   <div class="sol-step">$$P(M \mid N) = \frac{${U.fmt(like)}\cdot ${U.fmt(m)}}{${U.fmt(like)}\cdot ${U.fmt(m)} + 1\cdot ${U.fmt(1 - m)}} \approx ${U.fmt(ans)}$$</div>
+                   <div class="sol-step">Updating one child at a time (posterior after each becomes the next prior) gives the same answer — the results arriving on different days changes nothing.</div>`,
             };
           },
         },
@@ -1080,6 +1152,22 @@
           },
         },
         {
+          name: "Conditionally independent, yet dependent",
+          make() {
+            const [mn, md] = U.pick([[1, 3], [1, 4], [1, 5], [2, 5]]);
+            const m = mn / md, h = U.pick([0.5, 0.6, 0.4]), g = U.pick([0, 0, 0.05, 0.1]);
+            const pE = m * h + (1 - m) * g, pEY = m * h * h + (1 - m) * g * g;
+            const ans = pEY / pE;
+            return {
+              q: R`A mother carries a gene with probability \(${mn}/${md}\). If she carries it, each of her two children independently inherits a trait with probability ${h}; if not, each independently has it with probability ${g}. Given that the <b>elder</b> child has the trait, what is the probability the <b>younger</b> one does?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Given the mother's status the children are independent, so condition on it (\(M\) = carrier): $$P(\text{elder}) = ${h}\cdot ${U.fmt(m)} + ${g}\cdot ${U.fmt(1 - m)} = ${U.fmt(pE)}, \qquad P(\text{both}) = ${h}^2 \cdot ${U.fmt(m)} + ${g}^2 \cdot ${U.fmt(1 - m)} = ${U.fmt(pEY)}$$</div>
+                   <div class="sol-step">$$P(\text{younger} \mid \text{elder}) = \frac{${U.fmt(pEY)}}{${U.fmt(pE)}} \approx ${U.fmt(ans)}$$</div>
+                   <div class="sol-step">Compare \(P(\text{younger}) = ${U.fmt(pE)}\): the elder's trait is evidence the mother is a carrier, which raises the younger's chance. Conditionally independent given \(M\), but <b>not</b> independent.</div>`,
+            };
+          },
+        },
+        {
           name: "Three mutually independent events",
           make() {
             const p = [U.randInt(30, 80) / 100, U.randInt(30, 80) / 100, U.randInt(30, 80) / 100];
@@ -1092,6 +1180,221 @@
               sol: R`<div class="sol-step">Mutual independence means every intersection factorises — in particular \(P(A \cap B \cap C) = ${p[0]} \times ${p[1]} \times ${p[2]} = ${U.fmt(all, 5)}\).</div>
                    ${askAll ? `` : R`<div class="sol-step">For the union, go through the complement instead of three-event inclusion–exclusion: $$P(A \cup B \cup C) = 1 - P(A^c)P(B^c)P(C^c) = 1 - ${U.fmt((1 - p[0]) * (1 - p[1]) * (1 - p[2]), 5)} = ${U.fmt(ans, 5)}$$</div>`}
                    <div class="sol-step">Remember: mutual independence needs all four equations (three pairs <em>and</em> the triple). Pairwise independence alone is not enough.</div>`,
+            };
+          },
+        },
+      ],
+    }),
+
+    /* ========== Assignment 2: what exactly is the condition? ========== */
+    MATH340.makeGenerator({
+      id: "c2-gen-info",
+      name: "What exactly are you conditioning on?",
+      blurb: "\"The first is red\" vs \"at least one is red\" vs \"R1 is in the sample\": same story, different information.",
+      variants: [
+        {
+          name: "Given the first draw",
+          make() {
+            const r = U.randInt(2, 6), b = U.randInt(2, 6), n = r + b;
+            const ans = (r - 1) / (n - 1);
+            return {
+              q: R`A jar holds ${r} red and ${b} blue marbles. Two are drawn at random without replacement. Find the probability that both are red, <b>given that the first one is red</b>.`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(P(\text{both red} \mid \text{first red}) = \frac{P(\text{both red})}{P(\text{first red})}\) since both-red is inside first-red.</div>
+                   <div class="sol-step">More directly: once a red is out, ${n - 1} marbles remain and ${r - 1} of them are red. $$P = \frac{${r - 1}}{${n - 1}} \approx ${U.fmt(ans)}$$</div>`,
+            };
+          },
+        },
+        {
+          name: "Given at least one",
+          make() {
+            const r = U.randInt(2, 6), b = U.randInt(2, 6), n = r + b;
+            const both = U.choose(r, 2), atLeast = U.choose(n, 2) - U.choose(b, 2);
+            const ans = both / atLeast;
+            return {
+              q: R`A jar holds ${r} red and ${b} blue marbles. Two are drawn at random without replacement. Find the probability that both are red, <b>given that at least one of them is red</b>.`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">All \(\binom{${n}}{2} = ${U.choose(n, 2)}\) unordered pairs are equally likely. "At least one red" rules out only the all-blue pairs: \(${U.choose(n, 2)} - \binom{${b}}{2} = ${atLeast}\) pairs remain.</div>
+                   <div class="sol-step">Both red: \(\binom{${r}}{2} = ${both}\) pairs. $$P = \frac{${both}}{${atLeast}} \approx ${U.fmt(ans)}$$</div>
+                   <div class="sol-step">Smaller than \(\frac{${r - 1}}{${n - 1}}\), the answer given "the first is red": "at least one" is weaker information, so it leaves more mixed pairs in play.</div>`,
+            };
+          },
+        },
+        {
+          name: "Given a specific labelled item",
+          make() {
+            const r = U.randInt(2, 6), b = U.randInt(2, 6), n = r + b, k = U.randInt(2, Math.min(4, n - 2));
+            // P(all k red | R1 in sample) = C(r-1, k-1) / C(n-1, k-1)
+            const ans = U.choose(r - 1, k - 1) / U.choose(n - 1, k - 1);
+            return {
+              q: R`A jar holds ${r} red marbles, labelled \(R_1, \dots, R_{${r}}\), and ${b} blue marbles. ${k} marbles are drawn at random without replacement. Given that <b>\(R_1\) is one of the marbles drawn</b>, what is the probability that all ${k} are red?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Knowing a <em>specific</em> marble is in the sample fixes one slot; the other \(${k - 1}\) are a uniformly random subset of the remaining \(${n - 1}\) marbles.</div>
+                   <div class="sol-step">They must all come from the other \(${r - 1}\) reds: $$P = \frac{\binom{${r - 1}}{${k - 1}}}{\binom{${n - 1}}{${k - 1}}} \approx ${U.fmt(ans)}$$</div>
+                   <div class="sol-step">This is not the same as "given at least one is red": naming the red marble is stronger information than merely knowing some red is present.</div>`,
+            };
+          },
+        },
+        {
+          name: "At least one vs. a specific child",
+          make() {
+            const k = U.randInt(2, 4);
+            const specific = Math.random() < 0.5;
+            const ans = specific ? 1 / Math.pow(2, k - 1) : 1 / (Math.pow(2, k) - 1);
+            return {
+              q: R`A family has ${k} children; each is equally likely to be a girl or a boy, independently. Given that <b>${specific ? "the eldest child is a girl" : "at least one child is a girl"}</b>, what is the probability that all ${k} are girls?`,
+              answer: ans, kind: "prob",
+              sol: specific
+                ? R`<div class="sol-step">The eldest's sex is independent of the others', so conditioning on it only settles that one child.</div>
+                   <div class="sol-step">The remaining \(${k - 1}\) must all be girls: \(P = (1/2)^{${k - 1}} \approx ${U.fmt(ans)}\).</div>`
+                : R`<div class="sol-step">The \(2^{${k}} = ${Math.pow(2, k)}\) sex sequences are equally likely. "At least one girl" removes only the all-boy sequence, leaving \(${Math.pow(2, k) - 1}\).</div>
+                   <div class="sol-step">Exactly one of them is all girls: $$P = \frac{1}{${Math.pow(2, k) - 1}} \approx ${U.fmt(ans)}$$ Compare \((1/2)^{${k - 1}}\) for "the eldest is a girl" — "at least one" doesn't say <em>which</em> child.</div>`,
+            };
+          },
+        },
+        {
+          name: "Dice: given at least one is high",
+          make() {
+            const t = U.randInt(3, 6);
+            const hi = 7 - t, lo = t - 1;
+            const ans = (hi * hi) / (36 - lo * lo);
+            return {
+              q: R`Two fair dice are rolled. Given that <b>at least one</b> die shows ${t === 6 ? "a 6" : R`\(${t}\) or more`}, what is the probability that <b>both</b> do?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">36 equally likely ordered rolls. The complement of "at least one \(\ge ${t}\)" is "both \(\le ${t - 1}\)": \(${lo}^2 = ${lo * lo}\) rolls. So the condition keeps \(36 - ${lo * lo} = ${36 - lo * lo}\) rolls.</div>
+                   <div class="sol-step">Both \(\ge ${t}\): \(${hi}^2 = ${hi * hi}\) rolls, all inside the condition. $$P = \frac{${hi * hi}}{${36 - lo * lo}} \approx ${U.fmt(ans)}$$</div>
+                   <div class="sol-step">Not \(${hi}/6\) — that would be the answer given that a <em>particular</em> die (say the first) is \(\ge ${t}\).</div>`,
+            };
+          },
+        },
+        {
+          name: "Which draw was it? P(first | at least one)",
+          make() {
+            const r = U.randInt(2, 6), b = U.randInt(2, 6), n = r + b;
+            const pAtLeast = 1 - U.choose(b, 2) / U.choose(n, 2);
+            const ans = (r / n) / pAtLeast;
+            return {
+              q: R`A jar holds ${r} red and ${b} blue marbles. Two are drawn at random without replacement. Given that <b>at least one</b> of the two is red, what is the probability that the <b>first</b> one drawn is red?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">"First is red" sits inside "at least one red", so \(P(\text{first red} \mid \ge 1 \text{ red}) = P(\text{first red}) / P(\ge 1 \text{ red})\).</div>
+                   <div class="sol-step">\(P(\text{first red}) = \frac{${r}}{${n}}\); \(P(\ge 1 \text{ red}) = 1 - \frac{\binom{${b}}{2}}{\binom{${n}}{2}} = 1 - \frac{${U.choose(b, 2)}}{${U.choose(n, 2)}} \approx ${U.fmt(pAtLeast)}\).</div>
+                   <div class="sol-step">$$P = \frac{${r}/${n}}{${U.fmt(pAtLeast)}} \approx ${U.fmt(ans)}$$ More than \(\frac{1}{2}\): the pairs where both are red count towards "first is red" for sure.</div>`,
+            };
+          },
+        },
+      ],
+    }),
+
+    /* ========== Assignment 2: judging a diagnostic test ========== */
+    MATH340.makeGenerator({
+      id: "c2-gen-diag",
+      name: "Diagnostic tests: sensitivity, specificity & accuracy",
+      blurb: "Overall success rate, the always-negative 'test', negative predictive value, and how good a test must be.",
+      variants: [
+        {
+          name: "Overall success rate",
+          make() {
+            const prev = U.pick([0.01, 0.02, 0.05, 0.1, 0.2]);
+            const sens = U.pick([0.8, 0.9, 0.95, 0.99]), spec = U.pick([0.85, 0.9, 0.95, 0.98]);
+            const ans = sens * prev + spec * (1 - prev);
+            return {
+              q: R`A disease affects ${U.fmt(prev * 100)}% of a population. A test has sensitivity ${sens} and specificity ${spec}. What is its <b>overall success rate</b> — the probability that a randomly chosen person is diagnosed correctly?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">A correct diagnosis is either a sick person testing positive or a healthy person testing negative. Partition on disease status (LOTP): $$P(\text{correct}) = P(+ \mid D)P(D) + P(- \mid D^c)P(D^c)$$</div>
+                   <div class="sol-step">$$= ${sens}(${prev}) + ${spec}(${U.fmt(1 - prev)}) = ${U.fmt(ans)}$$ It is a weighted average of sensitivity and specificity, weighted by prevalence.</div>`,
+            };
+          },
+        },
+        {
+          name: "Real test vs. 'everyone is healthy'",
+          make() {
+            const prev = U.pick([0.01, 0.02, 0.03]);
+            const s = U.pick([0.9, 0.93, 0.95]);
+            const real = s;
+            const ans = (1 - prev) - real;
+            return {
+              q: R`A disease affects ${U.fmt(prev * 100)}% of people. Company A's test has sensitivity and specificity both equal to ${s}. Company B's "test" simply declares every patient disease-free. By how much does B's overall success rate <b>exceed</b> A's? (Answer B − A.)`,
+              answer: ans, kind: "num", tol: 0.0006,
+              sol: R`<div class="sol-step">B is correct exactly on the healthy: \(P(\text{correct}_B) = P(D^c) = ${U.fmt(1 - prev)}\).</div>
+                   <div class="sol-step">A: \(${s}(${prev}) + ${s}(${U.fmt(1 - prev)}) = ${s}\) — with equal sensitivity and specificity, prevalence drops out.</div>
+                   <div class="sol-step">$$${U.fmt(1 - prev)} - ${s} = ${U.fmt(ans)}$$ B "wins" on accuracy yet has sensitivity 0 — it never detects the disease, which is the whole point of testing.</div>`,
+            };
+          },
+        },
+        {
+          name: "Negative predictive value",
+          make() {
+            const prev = U.pick([0.05, 0.1, 0.2, 0.3]);
+            const sens = U.pick([0.7, 0.8, 0.85, 0.9]), spec = U.pick([0.9, 0.95, 0.98]);
+            const pNeg = (1 - sens) * prev + spec * (1 - prev);
+            const ans = spec * (1 - prev) / pNeg;
+            return {
+              q: R`A condition has prevalence ${prev}. A screening test has sensitivity ${sens} and specificity ${spec}. A patient tests <b>negative</b>. What is the probability they really are free of the condition?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Bayes, but with the <em>negative</em> result: we want \(P(D^c \mid -)\). The misses (\(1 - \text{sens}\)) are the false negatives.</div>
+                   <div class="sol-step">$$P(-) = (1 - ${sens})(${prev}) + ${spec}(${U.fmt(1 - prev)}) = ${U.fmt(pNeg, 5)}$$</div>
+                   <div class="sol-step">$$P(D^c \mid -) = \frac{${spec} \times ${U.fmt(1 - prev)}}{${U.fmt(pNeg, 5)}} \approx ${U.fmt(ans)}$$</div>`,
+            };
+          },
+        },
+        {
+          name: "Equal sensitivity & specificity: how high?",
+          make() {
+            const prev = U.pick([0.01, 0.02, 0.04, 0.05, 0.08]);
+            const ans = 1 - prev;
+            return {
+              q: R`A disease affects ${U.fmt(prev * 100)}% of people. A lab wants a test whose overall success rate beats the trivial rule "diagnose everyone as healthy". If its sensitivity and specificity are <b>equal</b> (call the common value \(s\)), how large must \(s\) be? (Give the threshold.)`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Trivial rule: correct with probability \(P(D^c) = ${U.fmt(1 - prev)}\).</div>
+                   <div class="sol-step">New test: \(s(${prev}) + s(${U.fmt(1 - prev)}) = s\). We need \(s > ${U.fmt(1 - prev)}\).</div>
+                   <div class="sol-step">Threshold \(s = ${U.fmt(ans)}\): a balanced test must be better than the prevalence of health — very demanding for a rare disease.</div>`,
+            };
+          },
+        },
+        {
+          name: "Perfect sensitivity: required specificity",
+          make() {
+            const prev = U.pick([0.01, 0.02, 0.05, 0.1, 0.15]);
+            const ans = (1 - 2 * prev) / (1 - prev);
+            return {
+              q: R`A disease affects ${U.fmt(prev * 100)}% of people. A new test has sensitivity <b>1</b>. How high must its specificity be for its overall success rate to beat the rule "diagnose everyone as healthy"? (Give the threshold.)`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Need \(1 \cdot ${prev} + \text{spec}\cdot ${U.fmt(1 - prev)} > ${U.fmt(1 - prev)}\).</div>
+                   <div class="sol-step">$$\text{spec} > \frac{${U.fmt(1 - prev)} - ${prev}}{${U.fmt(1 - prev)}} = \frac{1 - 2(${prev})}{1 - ${prev}} \approx ${U.fmt(ans)}$$</div>
+                   <div class="sol-step">Catching every sick person buys only \(${prev}\) of accuracy, so the test can afford very few false positives.</div>`,
+            };
+          },
+        },
+        {
+          name: "Given specificity: required sensitivity",
+          make() {
+            const prev = U.pick([0.02, 0.05, 0.1]);
+            // choose spec so that the threshold lands strictly inside (0, 1)
+            const specs = [1, 0.999, 0.998, 0.995, 0.99, 0.98].filter(sp => (1 - prev) * (1 - sp) < prev);
+            const spec = U.pick(specs);
+            const ans = (1 - prev) * (1 - spec) / prev;
+            return {
+              q: R`A disease affects ${U.fmt(prev * 100)}% of people. A new test has specificity <b>${spec}</b>. How high must its sensitivity be for the overall success rate to beat "diagnose everyone as healthy"? (Give the threshold.)`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Need \(\text{sens}\cdot ${prev} + ${spec} \cdot ${U.fmt(1 - prev)} > ${U.fmt(1 - prev)}\), i.e. \(\text{sens}\cdot ${prev} > (1 - ${spec})(${U.fmt(1 - prev)})\).</div>
+                   <div class="sol-step">$$\text{sens} > \frac{(1 - ${spec})(${U.fmt(1 - prev)})}{${prev}} \approx ${U.fmt(ans)}$$</div>
+                   <div class="sol-step">${spec === 1 ? R`With specificity 1 the test never makes a false positive, so <em>any</em> sensitivity above 0 beats the trivial rule.` : R`The sensitivity has to make up, in true positives, for the false positives the imperfect specificity creates among the healthy majority.`}</div>`,
+            };
+          },
+        },
+        {
+          name: "Two positive tests in a row",
+          make() {
+            const prev = U.pick([0.005, 0.01, 0.02]);
+            const sens = U.pick([0.9, 0.95, 0.98]), fpr = U.pick([0.05, 0.1]);
+            const one = sens * prev / (sens * prev + fpr * (1 - prev));
+            const ans = sens * sens * prev / (sens * sens * prev + fpr * fpr * (1 - prev));
+            return {
+              q: R`A disease has prevalence ${prev}. A test has sensitivity ${sens} and false-positive rate ${fpr}. A patient tests positive, then is retested and is positive again. Assuming the results are conditionally independent given disease status, find \(P(D \mid \text{both positive})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Conditional independence given \(D\) (and given \(D^c\)) lets the likelihoods multiply: \(P(++ \mid D) = ${sens}^2\), \(P(++ \mid D^c) = ${fpr}^2\).</div>
+                   <div class="sol-step">$$P(D \mid ++) = \frac{${sens}^2(${prev})}{${sens}^2(${prev}) + ${fpr}^2(${U.fmt(1 - prev)})} \approx ${U.fmt(ans)}$$</div>
+                   <div class="sol-step">Sequentially: after one positive \(P(D \mid +) \approx ${U.fmt(one)}\); use that as the new prior and update again — same answer. One positive leaves plenty of doubt; the second does most of the work.</div>`,
             };
           },
         },
@@ -1157,6 +1460,21 @@
       use: R`Check the base rate`,
       why: R`With a rare cause, most positives are false positives. Trusting the sensitivity and ignoring \(P(A)\) is the single most common error in the chapter.`,
     },
+    {
+      when: R`"given that the first is…" vs "given that at least one is…" vs "given that \(R_1\) is one of them"`,
+      use: R`Condition on <em>exactly</em> the stated event, then count or use the definition`,
+      why: R`These are different events with different probabilities. "At least one" rules out the least, so it moves the answer the least; naming a specific item or position is stronger information.`,
+    },
+    {
+      when: R`sensitivity, specificity, "overall success rate", "accuracy"`,
+      use: R`LOTP: \(\text{sens}\cdot P(D) + \text{spec}\cdot P(D^c)\)`,
+      why: R`Accuracy averages the two rates by prevalence. For a rare disease "call everyone healthy" scores \(P(D^c)\) — compare against that, then solve the inequality for the unknown rate.`,
+    },
+    {
+      when: R`several observations that are independent <em>given</em> a hidden cause (children of one mother, repeated tests of one patient)`,
+      use: R`Condition on the cause first; multiply likelihoods inside each case`,
+      why: R`The observations are conditionally independent but not independent, so never multiply their unconditional probabilities. Updating one observation at a time gives the same posterior as all at once.`,
+    },
   ];
 
   MATH340.registerUnit({
@@ -1165,7 +1483,7 @@
     short: "Ch 2 · Conditional",
     week: 2,
     order: 2,
-    description: "Conditional probability, Bayes' rule, odds, the law of total probability, independence, and conditional independence.",
+    description: "Conditional probability, Bayes' rule, odds, the law of total probability, independence, and conditional independence — plus the Assignment 2 problem shapes: what exactly is being conditioned on, and judging a diagnostic test.",
     flashcards,
     generators,
     methodGuide,

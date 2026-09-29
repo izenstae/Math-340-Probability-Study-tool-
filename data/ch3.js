@@ -4,7 +4,8 @@
  * Covers: random variables, PMFs, CDFs, Bernoulli & Binomial,
  *         Hypergeometric, Binomial vs Hypergeometric, Discrete Uniform,
  *         functions of a random variable, independence of r.v.s and
- *         indicator random variables.
+ *         indicator random variables; Geometric, Negative Binomial and
+ *         Poisson (B&H 4.3, 4.7 — second half of the C3 notes).
  * ============================================================ */
 (function () {
   const U = MATH340.util;
@@ -157,6 +158,71 @@
       id: "c3-dunif-trap", tag: "Common pitfall",
       front: R`Two fair dice are rolled and \(T\) is their total. Is \(T\) Discrete Uniform on \(\{2, \dots, 12\}\)?`,
       back: R`<b>No.</b> The 36 <em>outcomes</em> are equally likely, but the 11 <em>totals</em> are not: \(P(T = 7) = 6/36\) while \(P(T = 2) = 1/36\). "Uniform" is a claim about the values of the r.v., not about the underlying outcomes. A function of a uniform r.v. is usually not uniform.`,
+    },
+
+    {
+      id: "c3-slips", tag: "Example · slips of paper",
+      front: R`Five slips are drawn from a hat of slips numbered \(1, \dots, 100\). Compare sampling <em>with</em> and <em>without</em> replacement: the count of slips \(\ge 80\), the value of the \(j\)th draw, and \(P(\text{100 is drawn})\).`,
+      back: R`<b>With replacement:</b> count \(\sim \text{Bin}(5, 21/100)\); \(j\)th draw \(\sim \text{DUnif}(\{1,\dots,100\})\); \(P(\text{100 drawn}) = 1 - (99/100)^5 \approx 0.049\).<br><b>Without:</b> count \(\sim \text{HGeom}(21, 79, 5)\); \(j\)th draw is <em>still</em> \(\text{DUnif}(\{1,\dots,100\})\) by symmetry; \(P(\text{100 drawn}) = 5/100\) exactly.<br>There are 21 values in \(\{80, \dots, 100\}\), not 20.`,
+    },
+
+    /* ---- Section 4.3: Geometric and Negative Binomial ---- */
+    {
+      id: "c3-geom-story", tag: "Geometric · story",
+      front: R`State the story, support, and PMF of \(X \sim \text{Geom}(p)\).`,
+      back: R`Run independent Bernoulli(\(p\)) trials until the first success. \(X\) is the number of <b>failures before</b> the first success, so \(X \in \{0, 1, 2, \dots\}\) and $$P(X = k) = q^k p, \qquad q = 1 - p.$$ \(k\) failures in a row, then one success. E.g. tails before the first head of a fair coin: \(\text{Geom}(1/2)\), \(P(X = k) = (1/2)^{k+1}\).`,
+    },
+    {
+      id: "c3-geom-convention", tag: "Geometric · convention",
+      front: R`"The 8th person is the first bike rider." Is that \(P(X = 8)\) for \(X \sim \text{Geom}(p)\)?`,
+      back: R`<b>No — it is \(P(X = 7)\).</b> The class's Geometric counts <em>failures</em>, and "the 8th is the first success" means 7 failures first: \(q^7 p\). If you count <em>trials</em> including the success, that is the First Success distribution: \(Y = X + 1 \sim \text{FS}(p)\), \(P(Y = k) = q^{k-1}p\). Decide which one the question counts before writing the exponent.`,
+    },
+    {
+      id: "c3-geom-cdf", tag: "Theorem 4.3.3",
+      front: R`Give the CDF of \(X \sim \text{Geom}(p)\) and the tail \(P(X \ge k)\).`,
+      back: R`$$F(x) = \begin{cases} 1 - q^{\lfloor x \rfloor + 1}, & x \ge 0 \\ 0, & x < 0 \end{cases}$$ Easiest route: \(X \ge k\) means the first \(k\) trials all fail, so \(P(X \ge k) = q^k\) and \(P(X \le k) = 1 - q^{k+1}\). No series to sum.`,
+    },
+    {
+      id: "c3-geom-memoryless", tag: "Geometric · memoryless",
+      front: R`For \(X \sim \text{Geom}(p)\), what is \(P(X \ge m + k \mid X \ge m)\)?`,
+      back: R`$$P(X \ge m + k \mid X \ge m) = \frac{q^{m+k}}{q^m} = q^k = P(X \ge k).$$ The <b>memoryless property</b>: having already failed \(m\) times tells you nothing about how many more failures are coming, because the trials are independent. The Geometric is the only discrete distribution on \(\{0,1,2,\dots\}\) with this property.`,
+    },
+    {
+      id: "c3-nbin-story", tag: "Story 4.3.8",
+      front: R`State the story and PMF of \(X \sim \text{NBin}(r, p)\).`,
+      back: R`\(X\) is the number of <b>failures before the \(r\)th success</b> in independent Bernoulli(\(p\)) trials: $$P(X = n) = \binom{n + r - 1}{r - 1} p^r q^n, \qquad n = 0, 1, 2, \dots$$ Why: the last trial must be the \(r\)th success, so only the first \(n + r - 1\) trials are free, and they hold \(r - 1\) successes. \(\text{NBin}(1, p) = \text{Geom}(p)\).`,
+    },
+    {
+      id: "c3-nbin-vs-bin", tag: "NBin vs. Binomial",
+      front: R`Binomial and Negative Binomial both involve independent Bernoulli(\(p\)) trials. What is the difference?`,
+      back: R`<b>Binomial:</b> the number of <em>trials</em> \(n\) is fixed; count the successes. \(\binom{n}{k}p^kq^{n-k}\).<br><b>Negative Binomial:</b> the number of <em>successes</em> \(r\) is fixed; count the failures until you reach it. \(\binom{n+r-1}{r-1}p^rq^n\) — one fewer free trial, because the final one is forced to be a success.`,
+    },
+    {
+      id: "c3-nbin-sum", tag: "Theorem 4.3.10",
+      front: R`How is \(\text{NBin}(r, p)\) built out of Geometric r.v.s?`,
+      back: R`If \(X \sim \text{NBin}(r, p)\) then $$X = X_1 + X_2 + \cdots + X_r, \qquad X_i \overset{\text{i.i.d.}}{\sim} \text{Geom}(p),$$ where \(X_i\) is the number of failures between the \((i-1)\)st and \(i\)th successes. Same relationship as Binomial = sum of i.i.d. Bernoullis.`,
+    },
+
+    /* ---- Section 4.7: Poisson ---- */
+    {
+      id: "c3-pois-def", tag: "Definition 4.7.1",
+      front: R`State the PMF of \(X \sim \text{Pois}(\lambda)\) and when the Poisson is used.`,
+      back: R`$$P(X = k) = \frac{e^{-\lambda}\lambda^k}{k!}, \qquad k = 0, 1, 2, \dots, \quad \lambda > 0.$$ It models the <b>number of events in a fixed interval</b> of time or space when events occur independently at a steady rate \(\lambda\) per interval — dog walkers per hour, typos per page, calls per minute. It sums to 1 because \(\sum_k \lambda^k/k! = e^{\lambda}\).`,
+    },
+    {
+      id: "c3-pois-cdf", tag: "Poisson · CDF",
+      front: R`Write the CDF of \(X \sim \text{Pois}(\lambda)\). How do you get \(P(X \ge k)\) for small \(k\)?`,
+      back: R`$$F(x) = P(X \le x) = \sum_{j=0}^{\lfloor x \rfloor} \frac{e^{-\lambda}\lambda^j}{j!} \quad (x \ge 0), \qquad F(x) = 0 \ (x < 0).$$ There is no closed form, and the upper tail is an infinite sum, so use the complement: \(P(X \ge k) = 1 - F(k - 1)\). In particular \(P(X \ge 1) = 1 - e^{-\lambda}\).`,
+    },
+    {
+      id: "c3-pois-rate", tag: "Poisson · rescaling",
+      front: R`Dog walkers pass at a rate of 8 per hour. What is the distribution of the number that pass in 15 minutes?`,
+      back: R`\(\text{Pois}(2)\). The parameter is the <b>expected count in the interval you are asking about</b>: rate × length \(= 8 \times \tfrac{1}{4} = 2\). Always rescale \(\lambda\) to the question's interval before plugging into the PMF.`,
+    },
+    {
+      id: "c3-pois-bin", tag: "Poisson ↔ Binomial",
+      front: R`When can \(\text{Bin}(n, p)\) be approximated by a Poisson, and with what parameter?`,
+      back: R`When \(n\) is <b>large</b> and \(p\) is <b>small</b> (many trials, each a rare event), $$\text{Bin}(n, p) \approx \text{Pois}(\lambda), \qquad \lambda = np.$$ E.g. 500 items each defective with probability 0.004: the number defective is approximately \(\text{Pois}(2)\). This is why the Poisson is the law of rare events.`,
     },
 
     /* ---- Section 3.7: functions of a random variable ---- */
@@ -315,6 +381,45 @@
     return { m, xs, ps };
   }
   const pSum = (ps, lo, hi) => sum(ps.slice(lo, hi + 1));
+
+  /* Geometric / Negative Binomial stories: p is a per-trial rate. */
+  const GEOM_CTX = [
+    () => {
+      const pct = U.pick([4, 5, 8, 10, 12, 15]);
+      return { p: pct / 100, setup: R`${pct}% of the people travelling down a sidewalk are on bikes. You watch people go by one at a time.`,
+        succ: "bike rider", succs: "bike riders", fail: "non-biker", fails: "non-bikers", trial: "person" };
+    },
+    () => {
+      const p = U.pick([0.2, 0.25, 0.3, 0.35, 0.4]);
+      return { p, setup: R`A basketball player makes each free throw with probability ${p}, independently, and keeps shooting.`,
+        succ: "made shot", succs: "made shots", fail: "miss", fails: "misses", trial: "shot" };
+    },
+    () => {
+      const p = U.pick([0.1, 0.15, 0.2, 0.25]);
+      return { p, setup: R`A telemarketer's calls each result in a sale with probability ${p}, independently of one another.`,
+        succ: "sale", succs: "sales", fail: "call with no sale", fails: "calls with no sale", trial: "call" };
+    },
+    () => {
+      const c = U.pick([4, 5, 6]);
+      return { p: 1 / c, setup: R`A fair ${c}-sided die is rolled repeatedly; a roll of 1 counts as a success.`,
+        succ: "roll of 1", succs: "rolls of 1", fail: "other roll", fails: "other rolls", trial: "roll", pTex: R`\frac{1}{${c}}` };
+    },
+  ];
+  const pT = c => c.pTex || U.fmt(c.p, 2);
+  const qT = c => (c.pTex ? R`\frac{${Math.round(1 / c.p) - 1}}{${Math.round(1 / c.p)}}` : U.fmt(1 - c.p, 2));
+
+  function poisPmf(lam, k) { return Math.exp(-lam) * Math.pow(lam, k) / U.factorial(k); }
+  function poisCdf(lam, k) { let s = 0; for (let j = 0; j <= k; j++) s += poisPmf(lam, j); return s; }
+
+  /* Poisson stories: a rate per `unit`, so λ may need rescaling. */
+  const POIS_CTX = [
+    { what: "dog walkers pass your bench in the park", per: "hour", evt: "dog walkers" },
+    { what: "customers arrive at a coffee-shop counter", per: "hour", evt: "customers" },
+    { what: "emails arrive in a shared inbox", per: "hour", evt: "emails" },
+    { what: "typos occur in a manuscript", per: "page", evt: "typos" },
+    { what: "calls reach a help desk", per: "minute", evt: "calls" },
+    { what: "meteors are visible in a clear night sky", per: "hour", evt: "meteors" },
+  ];
 
   const generators = [
     /* ========== 1. Random variables and PMFs from a story ========== */
@@ -1090,6 +1195,24 @@
           },
         },
         {
+          name: "Slips of paper: with vs. without replacement",
+          make() {
+            const N = U.pick([50, 60, 80, 100, 120]), n = U.randInt(3, 8);
+            const withR = Math.random() < 0.5;
+            const ans = withR ? 1 - Math.pow((N - 1) / N, n) : n / N;
+            return {
+              q: R`A hat holds ${N} slips numbered \(1, \dots, ${N}\). ${n} slips are drawn at random, <b>${withR ? "with replacement" : "without replacement"}</b>. What is the probability that the slip numbered ${N} is drawn at least once?`,
+              answer: ans, kind: "prob",
+              sol: withR
+                ? R`<div class="sol-step">With replacement, each draw is \(\text{DUnif}(\{1, \dots, ${N}\})\) and the draws are independent, so slip ${N} can appear more than once — no simple count of "slots". Use the complement.</div>
+                   <div class="sol-step">$$P(\text{drawn at least once}) = 1 - P(\text{never}) = 1 - \left(\frac{${N - 1}}{${N}}\right)^{${n}} \approx ${U.fmt(ans, 5)}$$</div>
+                   <div class="sol-step">Slightly less than \(${n}/${N}\): with replacement some draws are wasted on repeats.</div>`
+                : R`<div class="sol-step">Without replacement, each \(j\)th draw is still \(\text{DUnif}(\{1, \dots, ${N}\})\) by symmetry, and the events "draw \(j\) is slip ${N}" are <b>disjoint</b> — a slip can only come out once.</div>
+                   <div class="sol-step">$$P(\text{slip ${N} drawn}) = \sum_{j=1}^{${n}} \frac{1}{${N}} = \frac{${n}}{${N}} \approx ${U.fmt(ans, 5)}$$ Equivalently \(\binom{${N - 1}}{${n - 1}} / \binom{${N}}{${n}} = ${n}/${N}\).</div>`,
+            };
+          },
+        },
+        {
           name: "Conditioning keeps it uniform",
           make() {
             const N = U.randInt(10, 20);
@@ -1333,6 +1456,266 @@
         },
       ],
     }),
+
+    /* ========== 9. Geometric & Negative Binomial (Section 4.3) ========== */
+    MATH340.makeGenerator({
+      id: "c3-gen-geom",
+      name: "Geometric & Negative Binomial",
+      blurb: "Waiting for the first (or r-th) success: failures before, tails, CDF, memorylessness.",
+      variants: [
+        {
+          name: "The n-th trial is the first success",
+          make: sane(function () {
+            const c = U.pick(GEOM_CTX)();
+            const n = U.randInt(3, 10);
+            const ans = Math.pow(1 - c.p, n - 1) * c.p;
+            return {
+              q: R`${c.setup} What is the probability that the <b>${n}th</b> ${c.trial} is the first ${c.succ}?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Let \(X \sim \text{Geom}(${pT(c)})\) be the number of ${c.fails} <em>before</em> the first ${c.succ}. "The ${n}th ${c.trial} is the first ${c.succ}" means exactly \(${n - 1}\) ${c.fails} come first, i.e. \(X = ${n - 1}\) — not \(X = ${n}\).</div>
+                   <div class="sol-step">$$P(X = ${n - 1}) = q^{${n - 1}}p = \left(${qT(c)}\right)^{${n - 1}}\left(${pT(c)}\right) \approx ${U.fmt(ans)}$$</div>`,
+            };
+          }, 0.005),
+        },
+        {
+          name: "Exactly k failures first",
+          make: sane(function () {
+            const c = U.pick(GEOM_CTX)();
+            const k = U.randInt(0, 8);
+            const ans = Math.pow(1 - c.p, k) * c.p;
+            return {
+              q: R`${c.setup} Let \(X\) be the number of ${c.fails} seen before the first ${c.succ}. Find \(P(X = ${k})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Independent trials with constant success probability, counting failures before the first success: \(X \sim \text{Geom}(p)\) with \(p = ${pT(c)}\).</div>
+                   <div class="sol-step">\(X = ${k}\) is one specific sequence: ${k} ${U.plural(k, c.fail, c.fails)}, then a ${c.succ}. $$P(X = ${k}) = q^{${k}}p = \left(${qT(c)}\right)^{${k}}\left(${pT(c)}\right) \approx ${U.fmt(ans)}$$</div>`,
+            };
+          }, 0.005),
+        },
+        {
+          name: "No success in the first k trials (tail)",
+          make: sane(function () {
+            const c = U.pick(GEOM_CTX)();
+            const k = U.randInt(3, 12);
+            const ans = Math.pow(1 - c.p, k);
+            return {
+              q: R`${c.setup} What is the probability that the first ${k} ${U.plural(k, c.trial)} include <b>no</b> ${c.succ} at all?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">In terms of \(X \sim \text{Geom}(${pT(c)})\), the failures before the first success, this is \(P(X \ge ${k})\). Summing \(q^j p\) from \(j = ${k}\) to \(\infty\) works, but there is a shortcut.</div>
+                   <div class="sol-step">\(X \ge ${k}\) happens exactly when the first ${k} trials all fail, and they are independent: $$P(X \ge ${k}) = q^{${k}} = \left(${qT(c)}\right)^{${k}} \approx ${U.fmt(ans)}$$</div>`,
+            };
+          }),
+        },
+        {
+          name: "Geometric CDF: at most k failures",
+          make: sane(function () {
+            const c = U.pick(GEOM_CTX)();
+            const k = U.randInt(1, 8);
+            const ans = 1 - Math.pow(1 - c.p, k + 1);
+            return {
+              q: R`${c.setup} Let \(X\) be the number of ${c.fails} before the first ${c.succ}. Find \(P(X \le ${k})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(X \sim \text{Geom}(${pT(c)})\), whose CDF is \(F(x) = 1 - q^{\lfloor x \rfloor + 1}\) for \(x \ge 0\).</div>
+                   <div class="sol-step">Why: \(X \le ${k}\) fails only if the first \(${k + 1}\) trials are all failures, so \(P(X \le ${k}) = 1 - q^{${k + 1}}\). The exponent is \(k + 1\), not \(k\) — \(X = 0\) is a value too.</div>
+                   <div class="sol-step">$$P(X \le ${k}) = 1 - \left(${qT(c)}\right)^{${k + 1}} \approx ${U.fmt(ans)}$$</div>`,
+            };
+          }),
+        },
+        {
+          name: "Memoryless: after m failures",
+          make: sane(function () {
+            const c = U.pick(GEOM_CTX)();
+            const m = U.randInt(3, 8), k = U.randInt(2, 6);
+            const ans = Math.pow(1 - c.p, k);
+            return {
+              q: R`${c.setup} The first ${m} ${U.plural(m, c.trial)} have all been ${c.fails}. Given that, what is the probability that there are <b>at least ${k} more</b> ${c.fails} before the first ${c.succ}?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">With \(X \sim \text{Geom}(${pT(c)})\) we want \(P(X \ge ${m + k} \mid X \ge ${m})\). Both events are tails: \(P(X \ge j) = q^j\).</div>
+                   <div class="sol-step">$$P(X \ge ${m + k} \mid X \ge ${m}) = \frac{q^{${m + k}}}{q^{${m}}} = q^{${k}} = \left(${qT(c)}\right)^{${k}} \approx ${U.fmt(ans)}$$</div>
+                   <div class="sol-step">The ${m} past failures drop out completely — the <b>memoryless property</b>. The trials are independent, so the process has no memory of its bad luck.</div>`,
+            };
+          }),
+        },
+        {
+          name: "Failures before the r-th success (NBin)",
+          make: sane(function () {
+            const c = U.pick(GEOM_CTX)();
+            const r = U.randInt(2, 4), n = U.randInt(2, 12);
+            const ans = U.choose(n + r - 1, r - 1) * Math.pow(c.p, r) * Math.pow(1 - c.p, n);
+            return {
+              q: R`${c.setup} What is the probability of seeing exactly ${n} ${c.fails} before the <b>${r === 2 ? "2nd" : r === 3 ? "3rd" : r + "th"}</b> ${c.succ}?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Failures before the \(r\)th success: \(X \sim \text{NBin}(${r}, ${pT(c)})\), with \(P(X = n) = \binom{n + r - 1}{r - 1}p^r q^n\).</div>
+                   <div class="sol-step">The last of the \(${n + r}\) trials must be success number ${r}. The first \(${n + r - 1}\) hold the other \(${r - 1}\) ${U.plural(r - 1, "success", "successes")} in any positions: \(\binom{${n + r - 1}}{${r - 1}} = ${U.choose(n + r - 1, r - 1)}\) ways.</div>
+                   <div class="sol-step">$$P(X = ${n}) = \binom{${n + r - 1}}{${r - 1}}\left(${pT(c)}\right)^{${r}}\left(${qT(c)}\right)^{${n}} \approx ${U.fmt(ans)}$$</div>`,
+            };
+          }, 0.003),
+        },
+        {
+          name: "The r-th success on trial n",
+          make: sane(function () {
+            const c = U.pick(GEOM_CTX)();
+            const r = U.randInt(2, 4), N = U.randInt(r + 2, r + 10);
+            const ans = U.choose(N - 1, r - 1) * Math.pow(c.p, r) * Math.pow(1 - c.p, N - r);
+            return {
+              q: R`${c.setup} What is the probability that the ${r === 2 ? "2nd" : r === 3 ? "3rd" : r + "th"} ${c.succ} happens on ${c.trial} number <b>${N}</b>?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Translate to failures: the ${r === 2 ? "2nd" : r === 3 ? "3rd" : r + "th"} success on trial ${N} means \(${N} - ${r} = ${N - r}\) failures before it, so this is \(P(X = ${N - r})\) for \(X \sim \text{NBin}(${r}, ${pT(c)})\).</div>
+                   <div class="sol-step">Trial ${N} is a success; trials \(1, \dots, ${N - 1}\) contain exactly \(${r - 1}\) successes: $$\binom{${N - 1}}{${r - 1}}\left(${pT(c)}\right)^{${r}}\left(${qT(c)}\right)^{${N - r}} \approx ${U.fmt(ans)}$$</div>
+                   <div class="sol-step">Not \(\binom{${N}}{${r}}\): that would be the Binomial "${r} successes somewhere in ${N} trials", which allows the last one to come early.</div>`,
+            };
+          }, 0.003),
+        },
+        {
+          name: "Sum of two Geometrics is NBin",
+          make: sane(function () {
+            const c = U.pick(GEOM_CTX)();
+            const n = U.randInt(2, 10);
+            const ans = (n + 1) * c.p * c.p * Math.pow(1 - c.p, n);
+            return {
+              q: R`${c.setup} Let \(X_1\) be the number of ${c.fails} before the first ${c.succ}, and \(X_2\) the number of ${c.fails} between the first and second ${c.succs}. Find \(P(X_1 + X_2 = ${n})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(X_1, X_2\) are i.i.d. \(\text{Geom}(${pT(c)})\) — after the first success the process starts afresh. By Theorem 4.3.10 their sum is the number of failures before the 2nd success: \(X_1 + X_2 \sim \text{NBin}(2, ${pT(c)})\).</div>
+                   <div class="sol-step">$$P(X_1 + X_2 = ${n}) = \binom{${n} + 1}{1}p^2q^{${n}} = ${n + 1}\left(${pT(c)}\right)^2\left(${qT(c)}\right)^{${n}} \approx ${U.fmt(ans)}$$</div>
+                   <div class="sol-step">Check by brute force: \(\sum_{j=0}^{${n}} P(X_1 = j)P(X_2 = ${n} - j) = \sum_{j=0}^{${n}} q^j p \cdot q^{${n} - j}p = (${n + 1})p^2q^{${n}}\) — every split of the ${n} failures has the same probability.</div>`,
+            };
+          }, 0.005),
+        },
+      ],
+    }),
+
+    /* ========== 10. Poisson (Section 4.7) ========== */
+    MATH340.makeGenerator({
+      id: "c3-gen-pois",
+      name: "Poisson distribution",
+      blurb: "Counts at a rate: exactly k, at most k, at least one, rescaling λ, approximating a Binomial.",
+      variants: [
+        {
+          name: "Exactly k events",
+          make: sane(function () {
+            const c = U.pick(POIS_CTX);
+            const lam = U.randInt(2, 10), k = Math.max(0, lam + U.randInt(-3, 3));
+            const ans = poisPmf(lam, k);
+            return {
+              q: R`On average ${lam} ${c.what} per ${c.per}. Let \(X\) be the number of ${c.evt} in the next ${c.per}. Find \(P(X = ${k})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">A count of events in a fixed interval at a steady rate: \(X \sim \text{Pois}(\lambda)\) with \(\lambda = ${lam}\), the expected count in <em>one ${c.per}</em>.</div>
+                   <div class="sol-step">$$P(X = ${k}) = \frac{e^{-${lam}}\,${lam}^{${k}}}{${k}!} \approx ${U.fmt(ans)}$$</div>`,
+            };
+          }),
+        },
+        {
+          name: "At most k (Poisson CDF)",
+          make: sane(function () {
+            const c = U.pick(POIS_CTX);
+            const lam = U.randInt(2, 7), k = U.randInt(1, 3);
+            const terms = []; for (let j = 0; j <= k; j++) terms.push(U.fmt(poisPmf(lam, j), 4));
+            const ans = poisCdf(lam, k);
+            return {
+              q: R`On average ${lam} ${c.what} per ${c.per}. Find the probability of <b>at most ${k}</b> ${c.evt} in a given ${c.per}.`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(X \sim \text{Pois}(${lam})\). "At most ${k}" is the CDF value \(F(${k}) = \sum_{j=0}^{${k}} e^{-${lam}}${lam}^j / j!\).</div>
+                   <div class="sol-step">$$P(X \le ${k}) = ${terms.join(" + ")} \approx ${U.fmt(ans)}$$</div>
+                   <div class="sol-step">Don't forget the \(j = 0\) term, \(e^{-${lam}}\): zero events is a possible value.</div>`,
+            };
+          }),
+        },
+        {
+          name: "At least one (complement)",
+          make: sane(function () {
+            const c = U.pick(POIS_CTX);
+            const lam = U.pick([0.5, 0.8, 1, 1.2, 1.5, 2, 2.5, 3]);
+            const ans = 1 - Math.exp(-lam);
+            return {
+              q: R`On average ${lam} ${c.what} per ${c.per}. What is the probability of <b>at least one</b> of the ${c.evt} in a given ${c.per}?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(X \sim \text{Pois}(${lam})\). "At least one" is an infinite sum; its complement \(X = 0\) is a single term.</div>
+                   <div class="sol-step">$$P(X \ge 1) = 1 - P(X = 0) = 1 - e^{-${lam}} \approx ${U.fmt(ans)}$$</div>`,
+            };
+          }),
+        },
+        {
+          name: "Rescale the rate to the interval",
+          make: sane(function () {
+            const c = U.pick(POIS_CTX.filter(x => x.per === "hour"));
+            const rate = U.pick([4, 6, 8, 10, 12]);
+            const [len, lenTxt, frac] = U.pick([[0.5, "30 minutes", R`\tfrac{1}{2}`], [0.25, "15 minutes", R`\tfrac{1}{4}`], [2, "2 hours", "2"], [1.5, "90 minutes", R`\tfrac{3}{2}`]]);
+            const lam = rate * len;
+            const k = Math.max(0, Math.round(lam) + U.randInt(-2, 1));
+            const ans = poisPmf(lam, k);
+            return {
+              q: R`On average ${rate} ${c.what} per hour. What is the probability that exactly ${k} ${c.evt} arrive in the next <b>${lenTxt}</b>?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">The Poisson parameter is the expected count <em>in the interval asked about</em>, not the hourly rate: \(\lambda = ${rate} \times ${frac} = ${U.fmt(lam)}\).</div>
+                   <div class="sol-step">$$P(X = ${k}) = \frac{e^{-${U.fmt(lam)}}\,(${U.fmt(lam)})^{${k}}}{${k}!} \approx ${U.fmt(ans)}$$</div>
+                   <div class="sol-step">Plugging in \(\lambda = ${rate}\) is the classic slip — it answers the question for a one-hour window.</div>`,
+            };
+          }),
+        },
+        {
+          name: "More than k (strict inequality)",
+          make: sane(function () {
+            const c = U.pick(POIS_CTX);
+            const lam = U.randInt(1, 5), k = U.randInt(1, 3);
+            const terms = []; for (let j = 0; j <= k; j++) terms.push(U.fmt(poisPmf(lam, j), 4));
+            const ans = 1 - poisCdf(lam, k);
+            return {
+              q: R`On average ${lam} ${c.what} per ${c.per}. Find the probability of <b>more than ${k}</b> ${c.evt} in a given ${c.per}.`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(X \sim \text{Pois}(${lam})\). "More than ${k}" is \(X \ge ${k + 1}\) — an infinite upper tail, so take the complement \(X \le ${k}\).</div>
+                   <div class="sol-step">$$P(X \le ${k}) = ${terms.join(" + ")} \approx ${U.fmt(1 - ans)}$$</div>
+                   <div class="sol-step">$$P(X > ${k}) = 1 - F(${k}) \approx ${U.fmt(ans)}$$</div>`,
+            };
+          }),
+        },
+        {
+          name: "Poisson approximation to a Binomial",
+          make: sane(function () {
+            const [n, p] = U.pick([[500, 0.004], [1000, 0.002], [200, 0.01], [400, 0.005], [800, 0.0025], [300, 0.01], [1000, 0.003]]);
+            const lam = n * p;
+            const k = U.randInt(0, Math.round(lam) + 1);
+            const ans = poisPmf(lam, k);
+            const exact = binPmf(n, k, p);
+            return {
+              q: R`A factory ships ${n} items; each is defective with probability ${p}, independently. Using the <b>Poisson approximation</b>, estimate the probability that exactly ${k} items are defective.`,
+              answer: ans, kind: "prob", tol: Math.max(0.002, Math.abs(ans - exact) + 0.0006),
+              sol: R`<div class="sol-step">Exactly, \(X \sim \text{Bin}(${n}, ${p})\): many trials, each a rare event. Then \(X\) is approximately \(\text{Pois}(\lambda)\) with \(\lambda = np = ${n} \times ${p} = ${U.fmt(lam)}\).</div>
+                   <div class="sol-step">$$P(X = ${k}) \approx \frac{e^{-${U.fmt(lam)}}\,${U.fmt(lam)}^{${k}}}{${k}!} \approx ${U.fmt(ans)}$$</div>
+                   <div class="sol-step">The exact Binomial value is \(${U.fmt(exact)}\) — the approximation is good because \(n\) is large and \(p\) is small.</div>`,
+            };
+          }),
+        },
+        {
+          name: "Most likely count (mode)",
+          make() {
+            const c = U.pick(POIS_CTX);
+            const lam = U.pick([2.4, 3.7, 4.5, 5.2, 6.8, 7.5, 1.6, 8.3]);
+            const ans = Math.floor(lam);
+            return {
+              q: R`On average ${lam} ${c.what} per ${c.per}. Which count \(k\) is the <b>most likely</b> number of ${c.evt} in a given ${c.per}? (Give the value of \(k\) that maximises \(P(X = k)\).)`,
+              answer: ans, kind: "count",
+              sol: R`<div class="sol-step">\(X \sim \text{Pois}(${lam})\). Compare consecutive probabilities: $$\frac{P(X = k)}{P(X = k - 1)} = \frac{e^{-\lambda}\lambda^k / k!}{e^{-\lambda}\lambda^{k-1}/(k-1)!} = \frac{\lambda}{k}.$$</div>
+                   <div class="sol-step">The PMF increases while \(\lambda / k > 1\), i.e. while \(k < ${lam}\), and decreases after. So the peak is at the largest integer below \(\lambda\): \(k = \lfloor ${lam} \rfloor = ${ans}\).</div>`,
+            };
+          },
+        },
+        {
+          name: "Work backwards from P(X = 0)",
+          make() {
+            const c = U.pick(POIS_CTX);
+            const p0 = U.pick([0.1, 0.15, 0.2, 0.25, 0.3, 0.4, 0.5]);
+            const lam = -Math.log(p0);
+            const askK = U.randInt(1, 2);
+            const ans = poisPmf(lam, askK);
+            return {
+              q: R`The number of ${c.evt} in a ${c.per} is Poisson with an unknown rate. In ${Math.round(p0 * 100)}% of ${c.per}s there are <b>none</b> at all. What is the probability of exactly ${askK} in a given ${c.per}?`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(P(X = 0) = e^{-\lambda}\), so the "none" rate pins down \(\lambda\): \(e^{-\lambda} = ${p0} \Rightarrow \lambda = -\ln ${p0} \approx ${U.fmt(lam)}\).</div>
+                   <div class="sol-step">$$P(X = ${askK}) = e^{-\lambda}\frac{\lambda^{${askK}}}{${askK}!} = ${p0} \times \frac{(${U.fmt(lam)})^{${askK}}}{${askK}!} \approx ${U.fmt(ans)}$$ Notice \(e^{-\lambda}\) is already known — you never need to exponentiate.</div>`,
+            };
+          },
+        },
+      ],
+    }),
   ];
 
   /* ---------------- how to choose a method ---------------- */
@@ -1408,9 +1791,29 @@
       why: R`\(I_A I_B = I_{A \cap B}\) and \(I_A^2 = I_A\). When the \(A_i\) are independent with common probability \(p\), that sum <em>is</em> \(\text{Bin}(n, p)\).`,
     },
     {
-      when: R`"until the first success", "keeps trying until…"`,
-      use: R`\(P(X = k) = (1-p)^{k-1}p\); \(P(X > k) = (1-p)^k\)`,
-      why: R`\(X > k\) just means the first \(k\) tries all fail, so there is no infinite sum.`,
+      when: R`"until the first success", "the \(n\)th person is the first…", "keeps trying until…"`,
+      use: R`\(\text{Geom}(p)\): \(P(X = k) = q^kp\), counting <b>failures</b>; tail \(P(X \ge k) = q^k\)`,
+      why: R`Decide first whether the question counts failures or trials — "the 8th is the first success" is \(X = 7\). Tails and the CDF need no infinite sum: \(X \ge k\) just means the first \(k\) tries all fail.`,
+    },
+    {
+      when: R`"already failed \(m\) times — how many more?"`,
+      use: R`Memorylessness: \(P(X \ge m + k \mid X \ge m) = q^k\)`,
+      why: R`Independent trials don't remember past failures, so the conditioning just restarts the count.`,
+    },
+    {
+      when: R`"before the \(r\)th success", "the 3rd sale happens on call 12"`,
+      use: R`\(\text{NBin}(r, p)\): \(\binom{n + r - 1}{r - 1}p^rq^n\)`,
+      why: R`The number of successes is fixed and the trials are not — the reverse of the Binomial. The last trial is forced to be the \(r\)th success, so only \(n + r - 1\) positions are free.`,
+    },
+    {
+      when: R`a count of events in a time window or region, "at a rate of \(\lambda\) per hour"`,
+      use: R`\(\text{Pois}(\lambda)\): \(e^{-\lambda}\lambda^k/k!\)`,
+      why: R`First rescale \(\lambda\) to the window asked about (rate × length). "At least one" and "more than \(k\)" are infinite tails — go through the complement.`,
+    },
+    {
+      when: R`Binomial with huge \(n\) and tiny \(p\) (rare defects, rare events)`,
+      use: R`Poisson approximation with \(\lambda = np\)`,
+      why: R`The Binomial coefficients become unwieldy; the Poisson is accurate when \(n\) is large and \(p\) small.`,
     },
   ];
 
@@ -1420,7 +1823,7 @@
     short: "Ch 3 · RVs",
     week: 3,
     order: 3,
-    description: "Random variables, PMFs and CDFs; the Bernoulli, Binomial, Hypergeometric and Discrete Uniform distributions; functions of a random variable; independence and indicator r.v.s.",
+    description: "Random variables, PMFs and CDFs; the Bernoulli, Binomial, Hypergeometric, Discrete Uniform, Geometric, Negative Binomial and Poisson distributions; functions of a random variable; independence and indicator r.v.s.",
     flashcards,
     generators,
     methodGuide,

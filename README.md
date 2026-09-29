@@ -12,7 +12,7 @@ An interactive study tool for **MATH 340: Probability** (Fall 2026, Lawrence Uni
 Every definition, theorem, and identity from lecture is a card (Definition 2.2.1, Bayes' rule, inclusion–exclusion, Table C distributions, …). A six-box Leitner system schedules reviews: cards you know move up a box and appear less often — the top box waits three weeks, long enough to carry a week-2 card to the cumulative final — and cards you miss drop to box 1 *and come back later in the same session*, so a lapse is relearned while you are still sitting there. Cards in box 4+ count as *mastered*. A **cram** mode ignores the schedule and leads with your weakest cards, which is what you actually want the night before a quiz. Keyboard-friendly (Space to flip, 1/2 to grade).
 
 **✏️ Generated practice problems**
-Each topic is a *family of problems*, not a fixed bank and not one template with the numbers shuffled. The 25 topics — permutations and arrangements, committees, sampling, naive probability, inclusion–exclusion, the complement trick, random splits, the probability axioms, two-way tables, the law of total probability, Bayes' rule, the chain rule, independence and reliability, odds, random variables and PMFs, CDFs, the Binomial, the Hypergeometric, the Discrete Uniform, functions of a random variable, and independence of random variables — hold **161 structurally different problem types** between them, and a topic cycles through all of its types before any one repeats.
+Each topic is a *family of problems*, not a fixed bank and not one template with the numbers shuffled. The 30 topics — permutations and arrangements, committees, sampling, naive probability, inclusion–exclusion, the complement trick, random splits, the probability axioms, two-way tables, what exactly is being conditioned on, judging a diagnostic test, the law of total probability, Bayes' rule, the chain rule, independence and reliability, odds, random variables and PMFs, CDFs, the Binomial, the Hypergeometric, the Discrete Uniform, the Geometric and Negative Binomial, the Poisson, functions of a random variable, and independence of random variables — hold **195 structurally different problem types** between them, and a topic cycles through all of its types before any one repeats.
 
 That means a single topic will ask you to count directly, then via the complement, then adjust for overcounting, then reach for stars-and-bars; or run a rule forwards (law of total probability) and then backwards (Bayes), then solve it for a different unknown. Several variants exist purely to punish autopilot — disjoint events that are *not* independent, an event nested inside another, a two-headed coin. Answers accept decimals, fractions (`5/36`), or percents, and sensible rounding is credited.
 
@@ -86,9 +86,9 @@ Lecture materials are released week-of, so the repository adds a content module 
 | --- | --- |
 | Chapter 1 · Probability and Counting | ✅ Available |
 | Chapter 2 · Conditional Probability | ✅ Available |
-| Chapter 3 · Random variables, PMFs, CDFs, Bernoulli/Binomial, Hypergeometric, Discrete Uniform, functions of an r.v., independence & indicators | ✅ Available |
+| Chapter 3 · Random variables, PMFs, CDFs, Bernoulli/Binomial, Hypergeometric, Discrete Uniform, Geometric & Negative Binomial, Poisson, functions of an r.v., independence & indicators | ✅ Available |
 | Common Distributions · Table C | ✅ Available (reference + flashcards) |
-| Chapters 4–8 (expectation and variance, Geometric/Poisson, continuous distributions, MGFs, multivariate, limit laws) | 🔜 Added as covered in class |
+| Chapters 4–8 (expectation and variance, continuous distributions, MGFs, multivariate, limit laws) | 🔜 Added as covered in class |
 
 Each unit is a single self-registering file in `data/` — adding a new week requires **no changes to the application code**. See [`docs/ADDING_CONTENT.md`](docs/ADDING_CONTENT.md) for the 10-minute recipe (drop the new lecture PDF on Claude and ask it to follow that guide).
 

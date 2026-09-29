@@ -1,5 +1,5 @@
 /* ============================================================
- * Chapter 1 — Probability and Counting  (Weeks 1)
+ * Chapter 1 — Probability and Counting  (Week 1)
  * Source: class lecture notes (C1) + Blitzstein & Hwang ch. 1
  * ============================================================ */
 (function () {

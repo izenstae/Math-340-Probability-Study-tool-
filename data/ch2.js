@@ -1,6 +1,9 @@
 /* ============================================================
  * Chapter 2 — Conditional Probability  (Week 2)
- * Source: class lecture notes (C2) + Blitzstein & Hwang ch. 2
+ * Source: class lecture notes (C2) + Blitzstein & Hwang ch. 2,
+ *         plus the problem shapes from Assignment 2 (conditioning on
+ *         exactly the stated information; judging a diagnostic test;
+ *         hereditary-disease mixtures and sequential updating).
  * ============================================================ */
 (function () {
   const U = MATH340.util;

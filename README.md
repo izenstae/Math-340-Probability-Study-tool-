@@ -12,11 +12,11 @@ An interactive study tool for **MATH 340: Probability** (Fall 2026, Lawrence Uni
 Every definition, theorem, and identity from lecture is a card (Definition 2.2.1, Bayes' rule, inclusion–exclusion, Table C distributions, …). A six-box Leitner system schedules reviews: cards you know move up a box and appear less often — the top box waits three weeks, long enough to carry a week-2 card to the cumulative final — and cards you miss drop to box 1 *and come back later in the same session*, so a lapse is relearned while you are still sitting there. Cards in box 4+ count as *mastered*. A **cram** mode ignores the schedule and leads with your weakest cards, which is what you actually want the night before a quiz. Keyboard-friendly: Space flips the card, then 1 or J means "missed it" and 2 or K means "knew it".
 
 **✏️ Generated practice problems**
-Each topic is a *family of problems*, not a fixed bank and not one template with the numbers shuffled. There are **29 topics holding 195 structurally different problem types**, and a topic cycles through all of its types before any one repeats:
+Each topic is a *family of problems*, not a fixed bank and not one template with the numbers shuffled. There are **30 topics holding 204 structurally different problem types**, and a topic cycles through all of its types before any one repeats:
 
 - **Chapter 1 (8 topics, 54 types):** ordered selections, combinations, sampling with/without replacement, naive probability, inclusion–exclusion, the complement trick, random splits, and the axioms and Venn regions.
 - **Chapter 2 (11 topics, 69 types):** two-way tables, the definition of conditional probability, the law of total probability, Bayes' rule, independence and reliability, unions and intersections of independent events, odds, the chain rule, checking independence, and two topics built from Assignment 2: *what exactly are you conditioning on?* ("the first is red" vs. "at least one is red" vs. "R₁ was drawn") and *diagnostic tests* (sensitivity, specificity, overall success rate, and the "call everyone healthy" rule).
-- **Chapter 3 (10 topics, 72 types):** random variables and PMFs, probabilities from a PMF, CDFs, the Binomial, the Hypergeometric, the Discrete Uniform, functions of a random variable, independence of r.v.s and indicators, the Geometric and Negative Binomial, and the Poisson.
+- **Chapter 3 (11 topics, 81 types):** random variables and PMFs (including telling discrete from continuous), probabilities from a PMF, CDFs, the Binomial, the Hypergeometric, the Discrete Uniform, functions of a random variable, independence of r.v.s and indicators, the Geometric and Negative Binomial, the Poisson (including its derivation as a limit of the Binomial), and functions of two random variables: comparing them, products, 2X vs. X₁ + X₂, whether X + Y and X − Y are independent, extremes of many i.i.d. r.v.s, and variables that share a distribution without being equal.
 
 That means a single topic will ask you to count directly, then via the complement, then adjust for overcounting, then reach for stars-and-bars; or run a rule forwards (law of total probability) and then backwards (Bayes), then solve it for a different unknown. Several variants exist purely to punish autopilot — disjoint events that are *not* independent, an event nested inside another, a two-headed coin. Answers accept decimals, fractions (`5/36`), or percents, and sensible rounding is credited.
 
@@ -45,7 +45,7 @@ Not a wall of numbers — a ranked list of two or three concrete actions with a 
 Every identity from lecture on one searchable page, plus the full **Common Distributions table (Table C)** — story, support, PMF/PDF, mean, variance, and MGF for each named distribution. The midterm allows one 8.5×11" sheet, so the page doubles as the builder: tick the identities you want and hit print, and the print stylesheet drops everything else and sets your selection in two dense columns. The selection is saved and travels in your export.
 
 **🧭 "Choosing the right tool" guides**
-Formulas are the easy half. Each chapter carries a decision table (43 rows in all) — *when the question says …, reach for …, because …* — covering the wording cues that tell you it is a combination rather than a permutation, LOTP rather than Bayes, Binomial rather than Hypergeometric or Negative Binomial, or a base rate you are about to ignore.
+Formulas are the easy half. Each chapter carries a decision table (49 rows in all) — *when the question says …, reach for …, because …* — covering the wording cues that tell you it is a combination rather than a permutation, LOTP rather than Bayes, Binomial rather than Hypergeometric or Negative Binomial, or a base rate you are about to ignore.
 
 **🗓 Course schedule awareness**
 The tool knows the 10-week schedule, highlights the current week, flags quiz weeks, and counts down to the key dates in `data/manifest.js`: homework deadlines, the midterm (Oct 21), and the final (Nov 23). Within two weeks of an exam the dashboard starts recommending full-length rehearsals.
@@ -90,7 +90,7 @@ Lecture materials are released week-of, so the repository adds a content module 
 | --- | --- | ---: | ---: | ---: | --- |
 | Chapter 1 · Probability and Counting | C1 notes, B&H ch. 1 | 20 | 8 | 54 | ✅ Available |
 | Chapter 2 · Conditional Probability | C2 notes, B&H ch. 2, Assignment 2 | 21 | 11 | 69 | ✅ Available |
-| Chapter 3 · Random Variables & Distributions — PMFs, CDFs, Bernoulli/Binomial, Hypergeometric, Discrete Uniform, Geometric & Negative Binomial, Poisson, functions of an r.v., independence & indicators | C3 notes (both halves), B&H ch. 3 and §4.3, §4.7 | 47 | 10 | 72 | ✅ Available |
+| Chapter 3 · Random Variables & Distributions — PMFs, CDFs, Bernoulli/Binomial, Hypergeometric, Discrete Uniform, Geometric & Negative Binomial, Poisson and the Binomial limit, functions of one and two r.v.s, independence & indicators | Full C3 deck (84 slides), B&H ch. 3 and §4.3, §4.7 | 56 | 11 | 81 | ✅ Available |
 | Common Distributions · Table C | Class handout | 20 | — | — | ✅ Available (reference + flashcards) |
 | Chapters 4–8 (expectation and variance, continuous distributions, MGFs, multivariate, limit laws) | | | | | 🔜 Added as covered in class |
 

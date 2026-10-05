@@ -6,7 +6,9 @@
  *         Hypergeometric, Binomial vs Hypergeometric, Discrete Uniform,
  *         functions of a random variable, independence of r.v.s and
  *         indicator random variables; Geometric, Negative Binomial and
- *         Poisson (B&H 4.3, 4.7 — second half of the C3 notes).
+ *         Poisson (B&H 4.3, 4.7 — second half of the C3 notes);
+ *         the Binomial → Poisson limit, functions of two r.v.s, and the
+ *         full independence definitions (complete C3 deck).
  * ============================================================ */
 (function () {
   const U = MATH340.util;
@@ -258,6 +260,59 @@
       id: "c3-indicator-count", tag: "Counting with indicators",
       front: R`If \(A_1, \dots, A_n\) are events, what does \(X = I_{A_1} + \cdots + I_{A_n}\) count? What is its distribution when the \(A_i\) are independent with the same probability \(p\)?`,
       back: R`\(X\) counts <b>how many of the events occur</b>. If the \(A_i\) are independent and each has probability \(p\), then \(X \sim \text{Bin}(n, p)\) — this is exactly the "sum of \(n\) i.i.d. Bernoulli(\(p\))" story of the Binomial.`,
+    },
+
+    /* ---- C3 full deck: classifying r.v.s ---- */
+    {
+      id: "c3-classify", tag: "Discrete or continuous?",
+      front: R`Classify each: (a) unbroken eggs in a carton, (b) swings a golfer needs to hit the ball, (c) the sales-tax percentage on a purchase, (d) the pH of a soil sample, (e) a rattlesnake's length.`,
+      back: R`(a) <b>Discrete</b>: finite set \(\{0, \dots, 12\}\). (b) <b>Discrete</b>: \(\{1, 2, 3, \dots\}\) is infinite but can be <em>listed</em>. (c) <b>Discrete</b>: only finitely many tax rates exist, even though they are decimals. (d), (e) <b>Continuous</b>: any value in an interval, and no single value has positive probability.<br>The test is not "integer or decimal" but "can the values be listed?"`,
+    },
+
+    /* ---- C3 full deck: Binomial → Poisson ---- */
+    {
+      id: "c3-pois-limit", tag: "Deriving the Poisson PMF",
+      front: R`Let \(X \sim \text{Bin}(n, \lambda/n)\). Show that \(P(X = k) \to e^{-\lambda}\lambda^k / k!\) as \(n \to \infty\).`,
+      back: R`Substitute \(p = \lambda/n\) and regroup: $$P(X = k) = \frac{\lambda^k}{k!}\left[\frac{n}{n}\cdot\frac{n-1}{n}\cdots\frac{n-k+1}{n}\right]\left(1 - \frac{\lambda}{n}\right)^{n}\left(1 - \frac{\lambda}{n}\right)^{-k}.$$ With \(k\) fixed, the bracket \(\to 1\), \((1 - \lambda/n)^{n} \to e^{-\lambda}\), and \((1 - \lambda/n)^{-k} \to 1\). What is left is the Poisson PMF.`,
+    },
+
+    /* ---- C3 full deck: functions of two r.v.s; r.v. vs distribution ---- */
+    {
+      id: "c3-fn-two", tag: "Functions of two r.v.s",
+      front: R`What is \(g(X, Y)\) for two random variables on the same sample space, and how do you find \(P(g(X, Y) = z)\)?`,
+      back: R`It is the random variable \(s \mapsto g(X(s), Y(s))\): first read off both values, then apply \(g\). Its PMF is found by <b>collecting every pair</b> that \(g\) sends to \(z\): $$P(g(X, Y) = z) = \sum_{(x, y)\,:\,g(x, y) = z} P(X = x, Y = y).$$ When \(X, Y\) are independent, each joint term is \(P(X = x)P(Y = y)\). Example: \(\max(X, Y)\) for two dice.`,
+    },
+    {
+      id: "c3-rv-vs-dist", tag: "Common error",
+      front: R`\(X\) has PMF \(p_X\). Is the PMF of \(2X\) equal to \(2p_X(x)\)? And if \(X_1, X_2\) are i.i.d. copies of \(X\), is \(X_1 + X_2\) the same as \(2X\)?`,
+      back: R`<b>No to both.</b> \(2p_X\) sums to 2, so it is not a PMF at all. Doubling moves the <em>values</em>, not the probabilities: \(P(2X = 2x) = P(X = x)\).<br>\(X_1 + X_2\) is not \(2X\) either. \(2X\) is always even, but \(X_1 + X_2\) can be odd. Multiplying a random variable by 2 is a different operation from adding two independent copies of it.`,
+    },
+    {
+      id: "c3-same-dist", tag: "Common error",
+      front: R`If \(X\) and \(Y\) have the same distribution, must \(X = Y\)?`,
+      back: R`<b>No.</b> Roll one die, let \(X\) be the top face and \(Y = 7 - X\) the bottom face. Both are \(\text{DUnif}(\{1, \dots, 6\})\), yet \(X \ne Y\) on <em>every</em> outcome. A distribution describes how probability is spread over values, not which value happens on a given outcome.`,
+    },
+
+    /* ---- C3 full deck: independence of r.v.s, in full ---- */
+    {
+      id: "c3-indep-cdf", tag: "Definition 3.8.1",
+      front: R`State the general (CDF) definition of independence of two r.v.s, and its discrete equivalent.`,
+      back: R`\(X\) and \(Y\) are independent if $$P(X \le x,\ Y \le y) = P(X \le x)\,P(Y \le y) \quad \text{for all } x, y \in \mathbb{R}.$$ For discrete r.v.s this is equivalent to the joint PMF factoring: \(P(X = x, Y = y) = P(X = x)P(Y = y)\) for all \(x, y\) in the supports. The CDF form also covers continuous r.v.s, which have no PMF.`,
+    },
+    {
+      id: "c3-indep-many", tag: "Definition 3.8.2",
+      front: R`When are \(X_1, \dots, X_n\) independent? What about infinitely many r.v.s?`,
+      back: R`\(X_1, \dots, X_n\) are independent if $$P(X_1 \le x_1, \dots, X_n \le x_n) = P(X_1 \le x_1)\cdots P(X_n \le x_n)$$ for all \(x_1, \dots, x_n\). An infinite collection is independent if <b>every finite subset</b> is. Payoff: events like \(\max_i X_i \le m\) or \(\min_i X_i > m\) become products.`,
+    },
+    {
+      id: "c3-indep-fn", tag: "Theorem 3.8.5",
+      front: R`If \(X\) and \(Y\) are independent, what can you say about \(g(X)\) and \(h(Y)\)?`,
+      back: R`They are <b>independent too</b>, for any functions \(g, h\). E.g. \(X^2\) and \(|Y - 3|\) are independent, so \(P(X^2 = 1,\ |Y - 3| \le 1) = P(X^2 = 1)\,P(|Y - 3| \le 1)\).<br>The functions must each use <em>one</em> variable: \(X + Y\) and \(X - Y\) both use both, and need not be independent.`,
+    },
+    {
+      id: "c3-sum-diff", tag: "Example · dice",
+      front: R`Two fair dice show \(X\) and \(Y\). Are \(X + Y\) and \(X - Y\) independent?`,
+      back: R`<b>No.</b> One pair of values is enough to show it: \(P(X + Y = 12,\ X - Y = 1) = 0\), since a sum of 12 forces \(X = Y = 6\). But \(P(X + Y = 12)P(X - Y = 1) = \tfrac{1}{36}\cdot\tfrac{5}{36} > 0\).<br>Intuition: knowing \(X - Y\) restricts which sums are possible. For example, \(X - Y\) odd forces \(X + Y\) odd.`,
     },
   ];
 
@@ -529,6 +584,33 @@
               sol: R`<div class="sol-step">Don't sum the infinite tail. Ask what the event <em>means</em>: ${strict ? R`\(X > ${k}\)` : R`\(X \ge ${k}\)`} says the first ${e} shots all miss.</div>
                    <div class="sol-step">$$P(X ${strict ? ">" : R`\ge`} ${k}) = (1 - ${p})^{${e}} = (${U.fmt(1 - p, 2)})^{${e}} \approx ${U.fmt(ans)}$$</div>
                    <div class="sol-step">Mind the endpoint: \(X \ge ${k}\) is \(X > ${k - 1}\), so it needs only ${k - 1} misses, not ${k}.</div>`,
+            };
+          },
+        },
+        {
+          name: "Discrete or continuous?",
+          make() {
+            const BANK = [
+              [true, R`the number of unbroken eggs in a randomly chosen carton of 12`, R`finite set \(\{0, \dots, 12\}\)`],
+              [true, R`the number of students on a class list absent on the first day`, R`finite set of counts`],
+              [true, R`the number of swings a golfer needs before hitting the ball`, R`\(\{1, 2, 3, \dots\}\): infinite, but can be listed`],
+              [true, R`the number of times three players must spin their rackets before getting something other than all-up or all-down`, R`\(\{1, 2, 3, \dots\}\): infinite, but can be listed`],
+              [true, R`the sales-tax percentage on a randomly selected online purchase`, R`only finitely many tax rates exist, even though they are decimals`],
+              [true, R`the number of emails that arrive in an hour`, R`\(\{0, 1, 2, \dots\}\): can be listed`],
+              [false, R`the length of a randomly selected rattlesnake`, R`any value in an interval`],
+              [false, R`the pH of a randomly chosen soil sample`, R`any value in an interval (roughly 0 to 14)`],
+              [false, R`the tension (psi) of a randomly selected tennis racket's strings`, R`any value in an interval`],
+              [false, R`the height above sea level at a random point in the continental US`, R`every value in \([-282, 14494]\) feet`],
+              [false, R`the time until the next bus arrives`, R`any non-negative real number`],
+            ];
+            const items = U.sample(BANK, 5);
+            const ans = items.filter(i => i[0]).length;
+            return {
+              q: R`How many of these random variables are <b>discrete</b>?<ol>${items.map(i => `<li>${i[1]}</li>`).join("")}</ol>`,
+              answer: ans, kind: "count",
+              sol: R`<div class="sol-step">The question is not "integer or decimal?" but "can the possible values be <b>listed</b>?" A finite or countably infinite set means discrete. All numbers in an interval, with no single value having positive probability, means continuous.</div>
+                   <div class="sol-step"><ol>${items.map(i => `<li>${i[0] ? "<b>Discrete</b>" : "<b>Continuous</b>"}: ${i[2]}.</li>`).join("")}</ol></div>
+                   <div class="sol-step">${ans} of the 5 are discrete.</div>`,
             };
           },
         },
@@ -1700,6 +1782,21 @@
           },
         },
         {
+          name: "The Binomial limit (deriving the PMF)",
+          make() {
+            const lam = U.pick([1, 2, 3, 0.5, 1.5, 2.5]);
+            const k = U.randInt(0, 3);
+            const ans = poisPmf(lam, k);
+            return {
+              q: R`For each \(n\), let \(X_n \sim \text{Bin}\left(n, \frac{${lam}}{n}\right)\). Find \(\displaystyle\lim_{n \to \infty} P(X_n = ${k})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(np = ${lam}\) stays fixed while \(n \to \infty\) and \(p \to 0\): this is exactly the setting where the Binomial PMF converges to the Poisson PMF with \(\lambda = ${lam}\).</div>
+                   <div class="sol-step">$$P(X_n = ${k}) = \frac{${lam}^{${k}}}{${k}!}\left[\frac{n(n-1)\cdots(n-${k}+1)}{n^{${k}}}\right]\left(1 - \frac{${lam}}{n}\right)^{n}\left(1 - \frac{${lam}}{n}\right)^{-${k}}$$ The bracket \(\to 1\), \(\left(1 - \frac{${lam}}{n}\right)^{n} \to e^{-${lam}}\), and the last factor \(\to 1\).</div>
+                   <div class="sol-step">$$\lim_{n \to \infty} P(X_n = ${k}) = \frac{e^{-${lam}}\,${lam}^{${k}}}{${k}!} \approx ${U.fmt(ans)}$$</div>`,
+            };
+          },
+        },
+        {
           name: "Work backwards from P(X = 0)",
           make() {
             const c = U.pick(POIS_CTX);
@@ -1712,6 +1809,156 @@
               answer: ans, kind: "prob",
               sol: R`<div class="sol-step">\(P(X = 0) = e^{-\lambda}\), so the "none" rate pins down \(\lambda\): \(e^{-\lambda} = ${p0} \Rightarrow \lambda = -\ln ${p0} \approx ${U.fmt(lam)}\).</div>
                    <div class="sol-step">$$P(X = ${askK}) = e^{-\lambda}\frac{\lambda^{${askK}}}{${askK}!} = ${p0} \times \frac{(${U.fmt(lam)})^{${askK}}}{${askK}!} \approx ${U.fmt(ans)}$$ Notice \(e^{-\lambda}\) is already known — you never need to exponentiate.</div>`,
+            };
+          },
+        },
+      ],
+    }),
+
+    /* ========== 11. Functions of two r.v.s & independence (Sections 3.7–3.8) ========== */
+    MATH340.makeGenerator({
+      id: "c3-gen-two-rv",
+      name: "Functions of two random variables",
+      blurb: "g(X, Y), comparing two r.v.s, extremes of many, and what independence does and doesn't give you.",
+      variants: [
+        {
+          name: "Comparing two r.v.s: P(X > Y)",
+          make: sane(function () {
+            const xs = [0, 1, 2, 3], px = pmfHundredths(4), py = pmfHundredths(4);
+            let tot = 0; const terms = [];
+            for (let i = 0; i < 4; i++) {
+              let below = 0; for (let j = 0; j < i; j++) below += py[j];
+              if (below) { tot += px[i] * below; terms.push(R`${hund(px[i])}(${hund(below)})`); }
+            }
+            const ans = tot / 10000;
+            return {
+              q: R`\(X\) and \(Y\) are independent with the PMFs below. Find \(P(X > Y)\).<br><br>${pmfTable(xs, px.map(hund), "x", R`P(X = x)`)}<br>${pmfTable(xs, py.map(hund), "y", R`P(Y = y)`)}`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(\{X > Y\}\) is an event about the <em>pair</em> \((X, Y)\). Condition on the value of \(X\): for each \(x\), you need \(Y \lt x\), and independence lets the two probabilities multiply.</div>
+                   <div class="sol-step">$$P(X > Y) = \sum_x P(X = x)\,P(Y \lt x)$$ (the \(x = 0\) term vanishes, since \(Y \lt 0\) is impossible).</div>
+                   <div class="sol-step">$$= ${terms.join(" + ")} = ${U.fmt(ans)}$$</div>`,
+            };
+          }),
+        },
+        {
+          name: "PMF of a product XY",
+          make() {
+            let xs, ys, px, py, groups, v;
+            for (let t = 0; t < 40; t++) {
+              xs = U.sample([-1, 0, 1, 2, 3], 3).sort((a, b) => a - b);
+              ys = U.sample([1, 2, 3, 4, 6], 3).sort((a, b) => a - b);
+              groups = {};
+              xs.forEach((x, i) => ys.forEach((y, j) => { (groups[x * y] = groups[x * y] || []).push([i, j]); }));
+              const multi = Object.keys(groups).filter(k => groups[k].length >= 2);
+              if (multi.length) { v = Number(U.pick(multi)); break; }
+            }
+            px = pmfHundredths(3, 10); py = pmfHundredths(3, 10);
+            const pairs = groups[v];
+            const ans = pairs.reduce((a, [i, j]) => a + px[i] * py[j], 0) / 10000;
+            return {
+              q: R`\(X\) and \(Y\) are independent with the PMFs below. Let \(Z = XY\). Find \(P(Z = ${v})\).<br><br>${pmfTable(xs, px.map(hund), "x", R`P(X = x)`)}<br>${pmfTable(ys, py.map(hund), "y", R`P(Y = y)`)}`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(Z = g(X, Y)\) with \(g(x, y) = xy\). Find <b>every pair</b> \((x, y)\) with \(xy = ${v}\); a product can be reached in more than one way.</div>
+                   <div class="sol-step">Pairs: ${pairs.map(([i, j]) => R`\((${xs[i]}, ${ys[j]})\)`).join(", ")}.</div>
+                   <div class="sol-step">By independence each pair has probability \(P(X = x)P(Y = y)\): $$P(Z = ${v}) = ${pairs.map(([i, j]) => R`${hund(px[i])}(${hund(py[j])})`).join(" + ")} = ${U.fmt(ans)}$$</div>`,
+            };
+          },
+        },
+        {
+          name: "2X is not X₁ + X₂",
+          make() {
+            const ps = pmfHundredths(3, 10);
+            const askDouble = Math.random() < 0.5;
+            const v = askDouble ? 2 : U.pick([1, 2, 3]);
+            const conv = { 1: 2 * ps[0] * ps[1], 2: ps[1] * ps[1] + 2 * ps[0] * ps[2], 3: 2 * ps[1] * ps[2] };
+            const ans = askDouble ? ps[1] / 100 : conv[v] / 10000;
+            const tbl = pmfTable([0, 1, 2], ps.map(hund), "x", R`P(X = x)`);
+            return {
+              q: askDouble
+                ? R`\(X\) has the PMF below. Find \(P(2X = ${v})\).<br><br>${tbl}`
+                : R`\(X_1\) and \(X_2\) are i.i.d., each with the PMF below. Find \(P(X_1 + X_2 = ${v})\).<br><br>${tbl}`,
+              answer: ans, kind: "prob",
+              sol: askDouble
+                ? R`<div class="sol-step">\(2X\) is <b>one</b> random variable with its values doubled. The probabilities do not change; they just move to new values.</div>
+                   <div class="sol-step">\(2X = 2 \iff X = 1\), so \(P(2X = 2) = P(X = 1) = ${hund(ps[1])}\).</div>
+                   <div class="sol-step">Compare \(X_1 + X_2\) for two independent copies: \(P(X_1 + X_2 = 2) = ${U.fmt(conv[2] / 10000)}\), a different number. \(2X\) is always even, but \(X_1 + X_2\) can be odd.</div>`
+                : R`<div class="sol-step">Two <b>independent</b> copies are not the same as doubling one: \(X_1 + X_2\) can reach ${v} through different pairs \((x_1, x_2)\), and each pair's probability is a product.</div>
+                   <div class="sol-step">Pairs with sum ${v}: ${v === 1 ? R`\((0,1), (1,0)\)` : v === 2 ? R`\((1,1), (0,2), (2,0)\)` : R`\((1,2), (2,1)\)`}. $$P(X_1 + X_2 = ${v}) = ${v === 1 ? R`(${hund(ps[0])})(${hund(ps[1])}) + (${hund(ps[1])})(${hund(ps[0])})` : v === 2 ? R`(${hund(ps[1])})^2 + (${hund(ps[0])})(${hund(ps[2])}) + (${hund(ps[2])})(${hund(ps[0])})` : R`(${hund(ps[1])})(${hund(ps[2])}) + (${hund(ps[2])})(${hund(ps[1])})`} = ${U.fmt(ans)}$$</div>
+                   <div class="sol-step">The trap answer treats \(X_1 + X_2\) as \(2X\). ${v === 2 ? R`That gives \(P(X = 1) = ${hund(ps[1])}\), which is wrong.` : R`That gives 0, since \(2X\) is never odd, which is wrong.`}</div>`,
+            };
+          },
+        },
+        {
+          name: "Is X + Y independent of X − Y?",
+          make() {
+            const n = U.pick([4, 6, 8]);
+            const d = U.randInt(0, n - 2);
+            const a = U.randInt(1, n - d);
+            const s = 2 * a + d;
+            const ans = 1 / (n - d);
+            const pS = (n - Math.abs(s - n - 1)) / (n * n);
+            return {
+              q: R`Two fair ${n}-sided dice are rolled, showing \(X\) and \(Y\). Find \(P(X + Y = ${s} \mid X - Y = ${d})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Given \(X - Y = ${d}\), the possible outcomes are \((${d ? `y + ${d}` : `y`}, y)\) for \(y = 1, \dots, ${n - d}\): ${n - d} equally likely pairs.</div>
+                   <div class="sol-step">On each of them \(X + Y = ${d ? `2y + ${d}` : `2y`}\) takes a <b>different</b> value, and \(${s}\) is one of them (\(y = ${a}\)). So $$P(X + Y = ${s} \mid X - Y = ${d}) = \frac{1}{${n - d}} \approx ${U.fmt(ans)}$$</div>
+                   <div class="sol-step">Unconditionally, \(P(X + Y = ${s}) = ${U.fmt(pS)}\), which is different. Learning \(X - Y\) changes the distribution of \(X + Y\), so they are <b>dependent</b>, even though \(X\) and \(Y\) themselves are independent.</div>`,
+            };
+          },
+        },
+        {
+          name: "Functions of independent r.v.s",
+          make: sane(function () {
+            const xs = [-2, -1, 0, 1, 2], px = pmfHundredths(5);
+            const ys = [0, 1, 2, 3, 4], py = pmfHundredths(5);
+            const sq = U.pick([1, 4]);
+            const [lo, hi] = [[1, 3], [0, 2], [2, 4]][U.randInt(0, 2)];
+            const c = (lo + hi) / 2;
+            const pa = (px[xs.indexOf(-Math.sqrt(sq))] + px[xs.indexOf(Math.sqrt(sq))]);
+            const pb = sum(py.slice(lo, hi + 1));
+            const ans = pa * pb / 10000;
+            return {
+              q: R`\(X\) and \(Y\) are independent with the PMFs below. Find \(P\big(X^2 = ${sq} \text{ and } |Y - ${c}| \le 1\big)\).<br><br>${pmfTable(xs, px.map(hund), "x", R`P(X = x)`)}<br>${pmfTable(ys, py.map(hund), "y", R`P(Y = y)`)}`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">\(X^2\) is a function of \(X\) alone and \(|Y - ${c}|\) of \(Y\) alone. By <b>Theorem 3.8.5</b>, functions of independent r.v.s are independent, so the joint probability factors.</div>
+                   <div class="sol-step">\(X^2 = ${sq} \iff X = \pm${Math.sqrt(sq)}\): probability \(${hund(px[xs.indexOf(-Math.sqrt(sq))])} + ${hund(px[xs.indexOf(Math.sqrt(sq))])} = ${hund(pa)}\). \(|Y - ${c}| \le 1 \iff Y \in \{${lo}, ${lo + 1}, ${hi}\}\): probability \(${hund(pb)}\).</div>
+                   <div class="sol-step">$$P = ${hund(pa)} \times ${hund(pb)} = ${U.fmt(ans)}$$</div>`,
+            };
+          }),
+        },
+        {
+          name: "Extremes of many independent r.v.s",
+          make: sane(function () {
+            const xs = [1, 2, 3, 4], ps = pmfHundredths(4);
+            const n = U.randInt(3, 5);
+            const useMax = Math.random() < 0.5;
+            const m = useMax ? U.randInt(2, 3) : U.randInt(2, 3);
+            const base = useMax ? sum(ps.slice(0, m)) : sum(ps.slice(m - 1));
+            const ans = Math.pow(base / 100, n);
+            return {
+              q: R`\(X_1, \dots, X_${n}\) are i.i.d. with the PMF below. Find \(P\big(${useMax ? R`\max(X_1, \dots, X_${n}) \le ${m}` : R`\min(X_1, \dots, X_${n}) \ge ${m}`}\big)\).<br><br>${pmfTable(xs, ps.map(hund), "x", R`P(X = x)`)}`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Rewrite the extreme as an "all" event: ${useMax ? R`the maximum is at most \(${m}\) exactly when <b>every</b> \(X_i \le ${m}\)` : R`the minimum is at least \(${m}\) exactly when <b>every</b> \(X_i \ge ${m}\)`}.</div>
+                   <div class="sol-step">By independence of \(X_1, \dots, X_${n}\) (Definition 3.8.2), an "all" event is a product of ${n} equal factors: \(P(X ${useMax ? R`\le` : R`\ge`} ${m}) = ${hund(base)}\).</div>
+                   <div class="sol-step">$$P = (${hund(base)})^{${n}} \approx ${U.fmt(ans)}$$</div>`,
+            };
+          }, 0.005),
+        },
+        {
+          name: "Same distribution, not the same variable",
+          make() {
+            const n = U.pick([5, 6, 7, 8, 9, 10, 12]);
+            const ask = U.pick(["eq", "lt", "sum"]);
+            const ans = ask === "eq" ? (n % 2 ? 1 / n : 0) : ask === "lt" ? Math.floor(n / 2) / n : 1;
+            const event = ask === "eq" ? "X = Y" : ask === "lt" ? "X \\lt Y" : `X + Y = ${n + 1}`;
+            return {
+              q: R`A number \(X\) is chosen uniformly from \(\{1, \dots, ${n}\}\), and \(Y = ${n + 1} - X\). Both \(X\) and \(Y\) are \(\text{DUnif}(\{1, \dots, ${n}\})\). Find \(P(${event})\).`,
+              answer: ans, kind: "prob",
+              sol: R`<div class="sol-step">Same distribution does <b>not</b> mean the same random variable. Here \(Y\) is completely determined by \(X\), so translate the event into a statement about \(X\) alone.</div>
+                   <div class="sol-step">${ask === "eq" ? R`\(X = ${n + 1} - X \iff X = ${(n + 1) / 2}\), ${n % 2 ? R`which is in the support, so \(P = 1/${n}\)` : R`which is not an integer, so \(P = 0\)`}.`
+                     : ask === "lt" ? R`\(X \lt ${n + 1} - X \iff X \lt ${(n + 1) / 2}\), which holds for \(X = 1, \dots, ${Math.floor(n / 2)}\). So \(P = ${Math.floor(n / 2)}/${n}\).`
+                     : R`\(X + Y = ${n + 1}\) on every outcome, so \(P = 1\).`}</div>
+                   <div class="sol-step">If \(X, Y\) were <em>independent</em> \(\text{DUnif}\) r.v.s, the answer would be different. The PMFs of \(X\) and \(Y\) alone cannot answer a question about how they relate to each other.</div>`,
             };
           },
         },
@@ -1816,6 +2063,36 @@
       use: R`Poisson approximation with \(\lambda = np\)`,
       why: R`The Binomial coefficients become unwieldy; the Poisson is accurate when \(n\) is large and \(p\) small.`,
     },
+    {
+      when: R`"is \(X\) discrete or continuous?"`,
+      use: R`Ask whether the values can be <b>listed</b>`,
+      why: R`Finite or countably infinite (\(1, 2, 3, \dots\)) means discrete, even if the values are decimals like tax rates. All numbers in an interval, with \(P(X = c) = 0\), means continuous.`,
+    },
+    {
+      when: R`\(\text{Bin}(n, \lambda/n)\) with \(n \to \infty\), or "derive the Poisson PMF"`,
+      use: R`Limit: bracket \(\to 1\), \((1 - \lambda/n)^n \to e^{-\lambda}\)`,
+      why: R`With \(np = \lambda\) fixed, the Binomial PMF converges to \(e^{-\lambda}\lambda^k/k!\). The same fact justifies the Poisson approximation for large \(n\) and small \(p\).`,
+    },
+    {
+      when: R`an event about two r.v.s together: \(X > Y\), \(XY = z\), \(X + Y = s\), \(\max(X, Y)\)`,
+      use: R`List the pairs \((x, y)\) in the event; add \(P(X = x)P(Y = y)\) if independent`,
+      why: R`\(g(X, Y)\) is a new r.v. whose PMF pools every pair \(g\) sends to the same value. For comparisons, condition on one variable: \(\sum_x P(X = x)P(Y \lt x)\).`,
+    },
+    {
+      when: R`\(\max\) or \(\min\) of several independent r.v.s`,
+      use: R`Turn it into an "all" event, then multiply`,
+      why: R`\(\max \le m\) means every \(X_i \le m\); \(\min \ge m\) means every \(X_i \ge m\). By independence that is a product of \(n\) factors.`,
+    },
+    {
+      when: R`\(2X\) vs. \(X_1 + X_2\), or "they have the same distribution"`,
+      use: R`Keep the r.v. and its distribution separate`,
+      why: R`\(P(2X = 2x) = P(X = x)\): doubling moves values, not probabilities. Two i.i.d. copies add differently, and \(Y = 7 - X\) has the same distribution as \(X\) without being equal to it.`,
+    },
+    {
+      when: R`"are \(f(X, Y)\) and \(h(X, Y)\) independent?" or "are \(g(X)\) and \(h(Y)\) independent?"`,
+      use: R`Theorem 3.8.5 if each uses one variable; otherwise find one failing pair`,
+      why: R`Functions of separate independent r.v.s stay independent. \(X + Y\) and \(X - Y\) share both inputs: one pair of values whose joint probability doesn't factor proves dependence.`,
+    },
   ];
 
   MATH340.registerUnit({
@@ -1824,7 +2101,7 @@
     short: "Ch 3 · RVs",
     week: 3,
     order: 3,
-    description: "Random variables, PMFs and CDFs; the Bernoulli, Binomial, Hypergeometric, Discrete Uniform, Geometric, Negative Binomial and Poisson distributions; functions of a random variable; independence and indicator r.v.s.",
+    description: "Random variables, PMFs and CDFs; the Bernoulli, Binomial, Hypergeometric, Discrete Uniform, Geometric, Negative Binomial and Poisson distributions; functions of one and two random variables; independence and indicator r.v.s.",
     flashcards,
     generators,
     methodGuide,
